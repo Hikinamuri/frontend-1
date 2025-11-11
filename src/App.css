@@ -1,0 +1,103 @@
+/* Additional app-specific styles */
+.App {
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #ffffff 0%, #F5F5DC 100%);
+}
+
+/* Navbar styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(139, 21, 56, 0.1);
+}
+
+/* Hero section */
+.hero-section {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Product card hover effects */
+.product-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.product-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 60px rgba(139, 21, 56, 0.25);
+}
+
+.product-card img {
+    transition: transform 0.6s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.1);
+}
+
+/* Feature cards with 3D effect */
+.feature-card {
+    perspective: 1000px;
+}
+
+.feature-card-inner {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.feature-card:hover .feature-card-inner {
+    transform: rotateY(5deg) rotateX(5deg);
+}
+
+/* Animated gradient background */
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.animated-gradient {
+    background: linear-gradient(
+        -45deg,
+        #8B1538,
+        #C41E3A,
+        #D4AF37,
+        #1a1a2e
+    );
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+}
+
+/* Loading animation */
+@keyframes pulse-scale {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.pulse-animation {
+    animation: pulse-scale 2s ease-in-out infinite;
+}
