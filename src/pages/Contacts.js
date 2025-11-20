@@ -64,7 +64,7 @@ const Contacts = () => {
       </section>
 
       {/* Main Content Section */}
-      <section className="py-20 bg-white relative overflow-hidden">
+      <section className="py-10 bg-white relative overflow-hidden">
         <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-br from-[#9c0101]/10 to-blue-600/10 rounded-full blur-2xl" />
         <div className="absolute bottom-10 left-10 w-24 h-24 bg-[#740000]/10 rounded-full blur-xl" />
         
