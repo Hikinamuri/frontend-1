@@ -179,7 +179,7 @@ const Home = () => {
                             </Link>
                             <Link
                                 to="/sunglasses"
-                                className="btn-secondary inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-blue-500 to-blue-600 shadow-[0_8px_32px_rgba(59,130,246,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] border border-blue-500/20 hover:shadow-[0_12px_40px_rgba(59,130,246,0.5)] hover:-translate-y-1 hover:scale-105 before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-t before:from-transparent before:to-white before:opacity-0 hover:before:opacity-20" /* Аналогично для синего */
+                                className="bg-gradient-to-br from-deepBlue to-[#282874ff] inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 shadow-[0_8px_32px_rgba(59,130,246,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] border border-blue-500/20 hover:shadow-[0_12px_40px_rgba(59,130,246,0.5)] hover:-translate-y-1 hover:scale-105 before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-t before:from-transparent before:to-white before:opacity-0 hover:before:opacity-20" /* Аналогично для синего */
                                 data-testid="sunglasses-btn"
                                 style={{
                                     position: "relative",
@@ -191,7 +191,7 @@ const Home = () => {
                                 </span>
                                 <ArrowRight
                                     size={20}
-                                    className="relative z-10"
+                                    className="relative z-10 text-white"
                                 />
                             </Link>
                         </div>
