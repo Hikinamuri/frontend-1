@@ -119,15 +119,12 @@ const Home = () => {
             <section className="hero-section relative overflow-hidden h-screen flex items-center justify-center bg-gradient-to-br from-deepBlue via-[#9c0101] to-[#740000]">
                 {/* Фоновое изображение: люди в очках (placeholder; замените на реальное фото) */}
                 <div
-                    className="absolute inset-0 bg-cover bg-center"
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
                     style={{
                         backgroundImage:
-                            "url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?fm=jpg&w=2070&q=80')",
+                            "url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')", // Unsplash: люди в очках
                     }}
-                >
-                    <div className="absolute inset-0 bg-black/20"></div>
-                </div>
-
+                />
                 {/* Parallax Background Layer 1 - красные точки */}
                 <div
                     className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_25%_25%,rgba(156,1,1,0.2)_2px,transparent_0)] bg-[length:50px_50px] bg-[position:0_0]"
@@ -241,7 +238,7 @@ const Home = () => {
                     <h2 className="text-4xl md:text-5xl font-bold text-[#740000] mb-4 animate-on-scroll opacity-0 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
                         {" "}
                         {/* Темно-красный */}
-                        Только оригинальная продукция от ведущих мировых марок
+                         Только оригинальная продукция от ведущих мировых марок
                     </h2>
                     {/* <p className="text-xl text-gray-600 mb-12 animate-on-scroll opacity-0">
                         Только оригинальная продукция от ведущих мировых марок
