@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import {
     ArrowRight,
     MapPin,
@@ -9,8 +10,6 @@ import {
     Phone,
     Clock,
 } from "lucide-react";
-// Импортируйте изображения брендов как модули (предполагается, что файлы лежат в src/assets/brands/
-// Если алиас @ настроен на src/, используйте '@/assets/brands/...'; иначе './assets/brands/...')
 import RayBanIcon from "@/assets/brands/rayban1.png";
 import PradaIcon from "@/assets/brands/prada.png";
 import GucciIcon from "@/assets/brands/gucci1.png";
@@ -20,9 +19,18 @@ import ChanelIcon from "@/assets/brands/chanel.png";
 import OliverPeoplesIcon from "@/assets/brands/oliverpeoples.png";
 import LindbergIcon from "@/assets/brands/lindberg.png";
 
+const API_BASE =
+    process.env.REACT_APP_WC_URL || "https://egooptika.ru/wp-json/wc/v3";
+const CONSUMER_KEY = process.env.REACT_APP_WC_KEY;
+const CONSUMER_SECRET = process.env.REACT_APP_WC_SECRET;
+
 const Home = () => {
     const [scrollY, setScrollY] = useState(0);
+    const [randomProducts, setRandomProducts] = useState([]);
+    const [loadingProducts, setLoadingProducts] = useState(false);
     const observerRef = useRef(null);
+    const carouselRef = useRef(null);
+    const hasFetched = useRef(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -30,6 +38,63 @@ const Home = () => {
         };
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        const fetchRandomProducts = async () => {
+            // Проверяем, не загружали ли уже
+            if (hasFetched.current) return;
+            hasFetched.current = true;
+
+            if (!CONSUMER_KEY || !CONSUMER_SECRET) {
+                console.warn("API ключи не настроены");
+                return;
+            }
+
+            try {
+                setLoadingProducts(true);
+                const response = await axios.get(`${API_BASE}/products`, {
+                    params: {
+                        consumer_key: CONSUMER_KEY,
+                        consumer_secret: CONSUMER_SECRET,
+                        per_page: 50,
+                    },
+                    timeout: 10000,
+                });
+
+                const products = response.data.map((product) => ({
+                    id: product.id,
+                    name: product.name,
+                    price: parseInt(product.price || 0),
+                    image:
+                        product.images?.[0]?.src ||
+                        "https://via.placeholder.com/300?text=No+Image",
+                    brand: product.etheme_brands?.[0]?.name || "Без бренда",
+                }));
+
+                const shuffledProducts = [...products]
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 20); // Берем 20 случайных товаров
+
+                setRandomProducts(shuffledProducts);
+            } catch (err) {
+                console.error("Ошибка загрузки товаров:", err);
+                // Заглушки
+                setRandomProducts([
+                    {
+                        id: 1,
+                        name: "Очки Ray-Ban Aviator",
+                        price: 15000,
+                        image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+                        brand: "Ray-Ban",
+                    },
+                ]);
+            } finally {
+                setLoadingProducts(false);
+            }
+        };
+
+        fetchRandomProducts();
     }, []);
 
     useEffect(() => {
@@ -90,7 +155,6 @@ const Home = () => {
         { name: "Lindberg", icon: LindbergIcon },
     ];
 
-    // Функция для определения размера логотипа по имени бренда
     const getLogoSizeClass = (name) => {
         const largerBrands = ["Ray-Ban", "Oliver Peoples", "Lindberg"];
         return largerBrands.includes(name)
@@ -101,7 +165,7 @@ const Home = () => {
     const addresses = [
         {
             address: "г. Казань, Николая Ершова, 47",
-            phones: ["+7 (843) 528‒07‒08", "+7 (843) 272‒91‒65"],
+            phones: ["+7 (843) 272‒91‒65"],
             schedule: "Пн-Пт: 10.00 — 20.00 Сб: 10.00 — 18.00 Вс: выходной",
             mapUrl: "https://yandex.ru/maps/org/egooptika/73340528068/",
         },
@@ -115,24 +179,80 @@ const Home = () => {
 
     return (
         <div className="min-h-screen">
+            {/* Random Products Carousel */}
+            <section className="bg-gradient-to-r from-blue-50 to-white pt-8">
+                <div className="max-w-7xl mx-auto px-4 pt-12">
+                    <div className="relative">
+                        <div
+                            ref={carouselRef}
+                            className="flex overflow-x-auto pb-6 gap-4 scrollbar-hide scroll-smooth"
+                            style={{
+                                scrollbarWidth: "none",
+                                msOverflowStyle: "none",
+                            }}
+                        >
+                            {loadingProducts
+                                ? // Skeleton Loaders
+                                  [...Array(5)].map((_, index) => (
+                                      <div
+                                          key={index}
+                                          className="flex-shrink-0 w-48"
+                                      >
+                                          <div className="bg-gray-200 animate-pulse rounded-xl h-32 w-full"></div>
+                                          <div className="mt-3 px-3">
+                                              <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4 mb-2"></div>
+                                              <div className="h-3 bg-gray-200 animate-pulse rounded w-1/2 mb-2"></div>
+                                              <div className="h-4 bg-gray-200 animate-pulse rounded w-2/3"></div>
+                                          </div>
+                                      </div>
+                                  ))
+                                : randomProducts.map((product) => (
+                                      <Link
+                                          key={product.id}
+                                          to={`/product/${product.id}`}
+                                          className="flex-shrink-0 w-48 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+                                      >
+                                          {/* Изменено с aspect-square на меньшую высоту */}
+                                          <div className="aspect-[4/3] bg-gradient-to-br from-gray-50 to-white rounded-t-xl overflow-hidden p-3">
+                                              <img
+                                                  src={product.image}
+                                                  alt={product.name}
+                                                  className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
+                                              />
+                                          </div>
+                                          <div className="p-3">
+                                              <div className="text-xs text-[#9c0101] font-semibold mb-1 line-clamp-1">
+                                                  {product.brand}
+                                              </div>
+                                              <div className="text-lg font-bold text-[#740000]">
+                                                  {product.price.toLocaleString(
+                                                      "ru-RU"
+                                                  )}{" "}
+                                                  ₽
+                                              </div>
+                                          </div>
+                                      </Link>
+                                  ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Hero Section with Parallax and Background Image */}
             <section className="hero-section relative overflow-hidden h-screen flex items-center justify-center bg-gradient-to-br from-deepBlue via-[#9c0101] to-[#740000]">
-                {/* Фоновое изображение: люди в очках (placeholder; замените на реальное фото) */}
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-20"
                     style={{
                         backgroundImage:
-                            "url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')", // Unsplash: люди в очках
+                            "url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')",
                     }}
                 />
-                {/* Parallax Background Layer 1 - красные точки */}
                 <div
                     className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_25%_25%,rgba(156,1,1,0.2)_2px,transparent_0)] bg-[length:50px_50px] bg-[position:0_0]"
                     style={{
                         transform: `translateY(${scrollY * 0.5}px)`,
                     }}
                 />
-                {/* Parallax Background Layer 2 */}
                 <div
                     className="absolute inset-0 opacity-20 bg-[linear-gradient(45deg,rgba(116,0,0,0.1)_25%,transparent_25%,transparent_75%,rgba(116,0,0,0.1)_75%)] bg-[length:80px_80px]"
                     style={{
@@ -154,39 +274,37 @@ const Home = () => {
                             <span>на любой вкус</span>
                         </h1>
                         <p className="text-xl md:text-2xl text-white mb-12 max-w-3xl mx-auto animate-fade-in-up">
-                            {" "}
-                            {/* Полностью белый */}
                             Широкий ассортимент премиальной оптики от ведущих
                             мировых брендов
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in">
                             <Link
                                 to="/frames"
-                                className="btn-primary inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-[#a00000] to-[#7a0000] shadow-[0_10px_36px_rgba(160,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] border border-[#a00000]/30 hover:shadow-[0_14px_44px_rgba(160,0,0,0.55)] hover:-translate-y-1 hover:scale-105 before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-t before:from-transparent before:to-white before:opacity-0 hover:before:opacity-25"
+                                className="inline-flex items-center justify-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all duration-300 bg-white text-gray-800 shadow-[0_8px_25px_rgba(0,0,0,0.15)] border border-white/20 hover:shadow-[0_12px_35px_rgba(0,0,0,0.25)] hover:-translate-y-1 hover:scale-105 w-full sm:w-auto min-w-[280px]"
                                 data-testid="frames-btn"
                                 style={{
                                     position: "relative",
                                     overflow: "hidden",
                                 }}
                             >
-                                <span className="relative z-10 text-white [text-shadow:0_2px_3px_rgba(0,0,0,0.4)]">
+                                <span className="relative z-10 [text-shadow:0_1px_2px_rgba(255,255,255,0.5)]">
                                     Оправы
                                 </span>
                                 <ArrowRight
                                     size={20}
-                                    className="relative z-10 text-white"
+                                    className="relative z-10 text-gray-700"
                                 />
                             </Link>
                             <Link
                                 to="/sunglasses"
-                                className="bg-gradient-to-br from-deepBlue to-[#282874ff] inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 shadow-[0_8px_32px_rgba(59,130,246,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] border border-blue-500/20 hover:shadow-[0_12px_40px_rgba(59,130,246,0.5)] hover:-translate-y-1 hover:scale-105 before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-t before:from-transparent before:to-white before:opacity-0 hover:before:opacity-20" /* Аналогично для синего */
+                                className="inline-flex items-center justify-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all duration-300 bg-[#1e3a8a] text-white shadow-[0_8px_25px_rgba(30,58,138,0.3)] border border-blue-800/20 hover:shadow-[0_12px_35px_rgba(30,58,138,0.4)] hover:-translate-y-1 hover:scale-105 w-full sm:w-auto min-w-[280px]"
                                 data-testid="sunglasses-btn"
                                 style={{
                                     position: "relative",
                                     overflow: "hidden",
                                 }}
                             >
-                                <span className="relative z-10 text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
+                                <span className="relative z-10 [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
                                     Солнцезащитные очки
                                 </span>
                                 <ArrowRight
@@ -197,59 +315,73 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                {/* Scroll Indicator - белый */}
-                {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-                    <div className="w-6 h-10 border-2 rounded-full flex justify-center border-white">
-                        <div className="w-1 h-3 rounded-full mt-2 bg-white animate-pulse" />
-                    </div>
-                </div> */}
             </section>
 
-            {/* Features Section - чисто белый фон, иконки в красном, текст белый/серый без горчицы */}
-            <section className="py-20 bg-white">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {features.map((feature, index) => (
-                            <div
-                                key={index}
-                                className="animate-on-scroll opacity-0 text-center p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 bg-white border border-gray-100" /* Убрал градиент to-slate-50, чистый белый */
-                            >
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full text-white mb-4 transform hover:scale-110 transition-transform duration-300 mx-auto bg-gradient-to-r from-[#9c0101] to-[#740000] shadow-[0_4px_14px_0_rgba(156,1,1,0.3)]">
-                                    {" "}
-                                    {/* Красный градиент */}
-                                    {feature.icon}
-                                </div>
-                                <h3 className="text-xl font-bold text-[#740000] mb-2 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
-                                    {feature.title}
-                                </h3>{" "}
-                                {/* Темно-красный */}
-                                <p className="text-gray-600">
-                                    {feature.description}
-                                </p>
-                            </div>
-                        ))}
+            {/* Рекламный блок */}
+            <section className="py-8 bg-gradient-to-r from-yellow-50 to-amber-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center border-2 border-dashed border-amber-300 rounded-2xl p-6 md:p-8 lg:p-10 bg-white/50 backdrop-blur-sm">
+                        <div className="max-w-2xl mx-auto">
+                            <p className="text-xl md:text-2xl lg:text-3xl font-bold text-amber-800 mb-2">
+                                Тут будет ваша реклама
+                            </p>
+                            <p className="text-amber-600 text-sm md:text-base">
+                                Этот блок можно использовать для размещения
+                                баннера, спецпредложения или рекламного
+                                сообщения
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Brands Section - с оригинальными иконками, градиент белый к светло-синему, без горчицы */}
-            <section className="py-10 bg-gradient-to-br from-white to-blue-50">
+            {/* Brands Section */}
+            <section className="pt-16 pb-8 bg-gradient-to-br from-white to-blue-50 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 text-center">
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#740000] mb-4 animate-on-scroll opacity-0 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
-                        {" "}
-                        {/* Темно-красный */}
-                         Только оригинальная продукция от ведущих мировых марок
-                    </h2>
-                    {/* <p className="text-xl text-gray-600 mb-12 animate-on-scroll opacity-0">
+                    <h2 className="text-4xl md:text-5xl font-bold text-[#740000] mb-8 md:mb-12 animate-on-scroll opacity-0 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
                         Только оригинальная продукция от ведущих мировых марок
-                    </p> */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {brands.map((brand, index) => (
-                            <div
-                                key={index}
-                                className="animate-on-scroll opacity-0 rounded-xl p-8 transition-all duration-300 hover:-translate-y-2 cursor-pointer bg-white shadow-md hover:shadow-lg flex flex-col items-center justify-center"
-                            >
-                                <div className="w-full h-24 flex items-center justify-center">
+                    </h2>
+
+                    {/* Бесконечная карусель - верхний ряд */}
+                    <div className="relative mb-8">
+                        {/* Градиент для плавного перехода слева */}
+                        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+
+                        {/* Градиент для плавного перехода справа */}
+                        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+
+                        <div className="flex overflow-hidden">
+                            <div className="flex animate-infinite-scroll">
+                                {[...brands, ...brands].map((brand, index) => (
+                                    <div
+                                        key={`top-${index}`}
+                                        className="flex-shrink-0 mx-4 md:mx-6 rounded-2xl p-6 transition-all duration-500 hover:scale-110 hover:shadow-2xl cursor-pointer bg-white/80 backdrop-blur-sm shadow-lg hover:bg-white border border-gray-100/50 flex items-center justify-center w-32 md:w-40 h-24"
+                                    >
+                                        <img
+                                            src={brand.icon}
+                                            alt={brand.name}
+                                            className="w-full h-full object-contain filter grayscale hover:grayscale-0 transition-all duration-500 hover:drop-shadow-lg"
+                                            onError={(e) => {
+                                                console.error(
+                                                    `Ошибка загрузки изображения для бренда: ${brand.name}`
+                                                );
+                                                e.target.style.display = "none";
+                                            }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Статичные бренды для мобильных устройств (на случай проблем с анимацией) */}
+                    <div className="md:hidden mt-8">
+                        <div className="grid grid-cols-2 gap-4">
+                            {brands.slice(0, 4).map((brand, index) => (
+                                <div
+                                    key={`mobile-${index}`}
+                                    className="rounded-xl p-6 transition-all duration-300 hover:scale-105 cursor-pointer bg-white shadow-md hover:shadow-lg flex items-center justify-center h-20"
+                                >
                                     <img
                                         src={brand.icon}
                                         alt={brand.name}
@@ -258,10 +390,34 @@ const Home = () => {
                                             console.error(
                                                 `Ошибка загрузки изображения для бренда: ${brand.name}`
                                             );
-                                            e.target.style.display = "none"; // Скрыть сломанное изображение, если нужно
+                                            e.target.style.display = "none";
                                         }}
                                     />
                                 </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Section */}
+            <section className="py-20 bg-white">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {features.map((feature, index) => (
+                            <div
+                                key={index}
+                                className="animate-on-scroll opacity-0 text-center p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 bg-white border border-gray-100"
+                            >
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full text-white mb-4 transform hover:scale-110 transition-transform duration-300 mx-auto bg-gradient-to-r from-[#9c0101] to-[#740000] shadow-[0_4px_14px_0_rgba(156,1,1,0.3)]">
+                                    {feature.icon}
+                                </div>
+                                <h3 className="text-xl font-bold text-[#740000] mb-2 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
+                                    {feature.title}
+                                </h3>
+                                <p className="text-gray-600">
+                                    {feature.description}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -293,114 +449,50 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Addresses Section — карточки одинаковой высоты + кнопка прижата к низу */}
-            <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-                <div className="max-w-7xl mx-auto px-4">
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#740000] mb-12 text-center animate-on-scroll opacity-0 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
-                        Наши адреса
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {addresses.map((location, index) => (
-                            <div
-                                key={index}
-                                className="animate-on-scroll opacity-0 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 
-                     flex flex-col h-full" // ← главное: flex + h-full
-                            >
-                                {/* Основное содержимое */}
-                                <div className="p-8 flex-1">
-                                    {" "}
-                                    {/* flex-1 растягивает этот блок */}
-                                    <div className="flex items-start space-x-4 mb-6">
-                                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-[#9c0101] to-[#740000] flex items-center justify-center text-white">
-                                            <MapPin size={24} />
-                                        </div>
-                                        <div className="text-left">
-                                            <h3 className="text-xl font-bold text-[#740000] mb-2">
-                                                Салон {index + 1}
-                                            </h3>
-                                            <p className="text-gray-800 font-medium">
-                                                {location.address}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <div className="flex items-start space-x-3">
-                                            <Phone
-                                                size={20}
-                                                className="text-[#9c0101] mt-1 flex-shrink-0"
-                                            />
-                                            <div>
-                                                <h4 className="font-semibold text-gray-800 mb-2">
-                                                    Телефоны:
-                                                </h4>
-                                                {location.phones.map(
-                                                    (phone, phoneIndex) => (
-                                                        <p
-                                                            key={phoneIndex}
-                                                            className="text-gray-600 hover:text-[#9c0101] transition-colors"
-                                                        >
-                                                            {phone}
-                                                        </p>
-                                                    )
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-start space-x-3">
-                                            <Clock
-                                                size={20}
-                                                className="text-[#9c0101] mt-1 flex-shrink-0"
-                                            />
-                                            <div>
-                                                <h4 className="font-semibold text-gray-800 mb-2">
-                                                    Режим работы:
-                                                </h4>
-                                                <p className="text-gray-600">
-                                                    {location.schedule}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Кнопка всегда внизу карточки */}
-                                <div className="mt-auto p-8 pt-4 border-t border-gray-200">
-                                    <a
-                                        href={location.mapUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex w-full items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-[#9c0101] to-[#740000] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                                        style={{
-                                            position: "relative",
-                                            overflow: "hidden",
-                                        }}
-                                    >
-                                        <MapPin size={16} />
-                                        <span>Открыть карту салона</span>
-                                        <ArrowRight size={16} />
-                                    </a>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Section - градиент красный/синий, текст белый с тенью для контраста */}
+            {/* CTA Section */}
             <section className="py-20 relative overflow-hidden text-white bg-gradient-to-br from-[#740000] via-[#9c0101] to-blue-900">
-                {" "}
-                {/* Используем указанные красные */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle,rgba(156,1,1,0.3)_2px,transparent_0)] bg-[length:40px_40px]" />
-                <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+                <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
                     <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-on-scroll opacity-0 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
                         Посетите наши салоны
                     </h2>
                     <p className="text-xl mb-8 animate-on-scroll opacity-0 [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
-                        {" "}
-                        {/* Добавлена тень */}
                         Приходите к нам, чтобы примерить очки и получить
                         профессиональную консультацию
                     </p>
+
+                    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center w-6xl ">
+                        {addresses.map((location, index) => (
+                            <a
+                                key={index}
+                                href={location.mapUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-between space-x-3 px-4 py-4 rounded-xl font-semibold transition-all duration-300 bg-white text-black shadow-lg hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] w-full sm:w-auto min-w-[280px]"
+                                style={{
+                                    position: "relative",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                <div className="flex items-center justify-between space-x-2">
+                                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                                        <MapPin
+                                            size={20}
+                                            className="text-[#740000]"
+                                        />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="font-bold text-lg">
+                                            {location.address.split(",")[0]}
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                            {location.address.split(",")[1]}
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
                 </div>
             </section>
         </div>

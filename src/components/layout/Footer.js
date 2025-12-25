@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin } from "lucide-react";
 
-import EgoLogo from 'src/assets/egooptika3.png'
+import EgoLogo from "src/assets/egooptika3.png";
 
 const Footer = () => {
     return (
@@ -99,6 +99,12 @@ const Footer = () => {
                                     >
                                         +7 (843) 765-43-21
                                     </a>
+                                    <a
+                                        href="tel:+78437654321"
+                                        className="text-gray-300 hover:text-gold transition-colors duration-300 block"
+                                    >
+                                        +7 (843) 528-07-08
+                                    </a>
                                 </div>
                             </li>
                             <li className="flex items-start space-x-3">
@@ -118,7 +124,20 @@ const Footer = () => {
                                     size={18}
                                     className="text-gold mt-1 flex-shrink-0"
                                 />
-                                <span className="text-gray-300">г. Казань</span>
+                                <div>
+                                    <a
+                                        href="https://yandex.ru/maps/org/egooptika/73340528068/"
+                                        className="text-gray-300 hover:text-gold transition-colors duration-300 block"
+                                    >
+                                        г. Казань, Николая Ершова, 47
+                                    </a>
+                                    <a
+                                        href="https://yandex.ru/maps/org/egooptika/138533122876/"
+                                        className="text-gray-300 hover:text-gold transition-colors duration-300 block"
+                                    >
+                                        г. Казань, Меридианная, 4
+                                    </a>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -126,14 +145,6 @@ const Footer = () => {
                     {/* О компании */}
                     <div>
                         <div className="flex items-center space-x-3 mb-4">
-                            {/* <div className="w-10 h-10 bg-gradient-to-br from-burgundy to-crimson rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-lg">
-                                    Э
-                                </span>
-                            </div>
-                            <span className="text-xl font-bold text-gradient-gold">
-                                Эгооптика
-                            </span> */}
                             <img
                                 src={EgoLogo}
                                 alt="Эгооптика"

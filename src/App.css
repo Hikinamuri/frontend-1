@@ -101,3 +101,45 @@
 .pulse-animation {
     animation: pulse-scale 2s ease-in-out infinite;
 }
+
+@keyframes infinite-scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes infinite-scroll-reverse {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.animate-infinite-scroll {
+    animation: infinite-scroll 40s linear infinite;
+    animation-play-state: running;
+}
+
+.animate-infinite-scroll-reverse {
+    animation: infinite-scroll-reverse 45s linear infinite;
+    animation-play-state: running;
+}
+
+/* Пауза при наведении */
+.animate-infinite-scroll:hover,
+.animate-infinite-scroll-reverse:hover {
+    animation-play-state: paused;
+}
+
+/* Для медленных устройств или пользователей, предпочитающих уменьшенное движение */
+@media (prefers-reduced-motion: reduce) {
+    .animate-infinite-scroll,
+    .animate-infinite-scroll-reverse {
+        animation: none;
+    }
+}
