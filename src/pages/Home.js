@@ -374,29 +374,6 @@ const Home = () => {
                         </div>
                     </div>
 
-                    {/* Статичные бренды для мобильных устройств (на случай проблем с анимацией) */}
-                    <div className="md:hidden mt-8">
-                        <div className="grid grid-cols-2 gap-4">
-                            {brands.slice(0, 4).map((brand, index) => (
-                                <div
-                                    key={`mobile-${index}`}
-                                    className="rounded-xl p-6 transition-all duration-300 hover:scale-105 cursor-pointer bg-white shadow-md hover:shadow-lg flex items-center justify-center h-20"
-                                >
-                                    <img
-                                        src={brand.icon}
-                                        alt={brand.name}
-                                        className={getLogoSizeClass(brand.name)}
-                                        onError={(e) => {
-                                            console.error(
-                                                `Ошибка загрузки изображения для бренда: ${brand.name}`
-                                            );
-                                            e.target.style.display = "none";
-                                        }}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             </section>
 
