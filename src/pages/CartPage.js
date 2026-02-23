@@ -61,6 +61,51 @@ const CartPage = () => {
         birthdayDiscountActive,
     } = discountData;
 
+    useEffect(() => {
+        if (!isAuthenticated || cart.length === 0) {
+            setDiscountData({
+                discountPercent: 0,
+                discountAmount: 0,
+                welcomeBonus: 0,
+                finalTotal: rawTotal,
+                birthdayDiscountActive: false,
+            });
+            return;
+        }
+
+        const fetchDiscount = async () => {
+            try {
+                const response = await fetch(
+                    "https://egooptika.ru/wp-json/custom/v1/calculate-discount",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        credentials: "include",
+                        body: JSON.stringify({
+                            cart_total: rawTotal,
+                        }),
+                    },
+                );
+
+                const data = await response.json();
+
+                setDiscountData({
+                    discountPercent: data.discountPercent,
+                    discountAmount: data.discountAmount,
+                    welcomeBonus: data.welcomeBonus,
+                    finalTotal: data.finalTotal,
+                    birthdayDiscountActive: data.birthdayDiscountActive,
+                });
+            } catch (error) {
+                console.error("Ошибка расчёта скидки:", error);
+            }
+        };
+
+        fetchDiscount();
+    }, [cart, rawTotal, isAuthenticated]);
+
     if (cart.length === 0) {
         return (
             <div className="min-h-screen pt-20 bg-gradient-to-br from-white via-blue-50 to-white">
@@ -90,51 +135,6 @@ const CartPage = () => {
             </div>
         );
     }
-
-    useEffect(() => {
-        if (!isAuthenticated || cart.length === 0) {
-            setDiscountData({
-                discountPercent: 0,
-                discountAmount: 0,
-                welcomeBonus: 0,
-                finalTotal: rawTotal,
-                birthdayDiscountActive: false,
-            });
-            return;
-        }
-
-        const fetchDiscount = async () => {
-            try {
-                const response = await fetch(
-                    "/wp-json/custom/v1/calculate-discount",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        credentials: "include",
-                        body: JSON.stringify({
-                            cart_total: rawTotal,
-                        }),
-                    },
-                );
-
-                const data = await response.json();
-
-                setDiscountData({
-                    discountPercent: data.discountPercent,
-                    discountAmount: data.discountAmount,
-                    welcomeBonus: data.welcomeBonus,
-                    finalTotal: data.finalTotal,
-                    birthdayDiscountActive: data.birthdayDiscountActive,
-                });
-            } catch (error) {
-                console.error("Ошибка расчёта скидки:", error);
-            }
-        };
-
-        fetchDiscount();
-    }, [cart, rawTotal, isAuthenticated]);
 
     return (
         <div className="min-h-screen pt-20 bg-gradient-to-br from-white via-blue-50 to-white">
@@ -301,7 +301,6 @@ const CartPage = () => {
 
                                     {discountPercent > 0 && (
                                         <div className="flex justify-between text-base font-medium text-green-700">
-                                            <span>{discountReason}</span>
                                             <span>
                                                 -{discountPercent}% (–
                                                 {discountAmount.toLocaleString(

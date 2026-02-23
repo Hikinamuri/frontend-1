@@ -22,40 +22,52 @@ const Profile = () => {
     const [loadingOrders, setLoadingOrders] = useState(true);
     const [errorOrders, setErrorOrders] = useState(null);
     const [debugInfo, setDebugInfo] = useState("");
+    const [profileData, setProfileData] = useState(null);
+
+    const fetchProfile = async () => {
+        const res = await fetch(`${API}/wp-json/custom/v1/user-profile`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user.email }),
+        });
+        const data = await res.json();
+        console.log("data", data);
+        setProfileData(data);
+    };
 
     // Получаем логин пользователя
     const getUserLogin = () => {
         if (!user) {
             console.log("User is null");
-            return '';
+            return "";
         }
-        
+
         console.log("User object:", user);
-        
+
         // Пробуем получить email
         if (user.email) {
             console.log("User email:", user.email);
-            return user.email.split('@')[0];
+            return user.email.split("@")[0];
         }
-        
+
         // Пробуем другие поля
         if (user.user_email) {
             console.log("User user_email:", user.user_email);
-            return user.user_email.split('@')[0];
+            return user.user_email.split("@")[0];
         }
-        
+
         if (user.name) {
             console.log("User name:", user.name);
             return user.name;
         }
-        
+
         if (user.display_name) {
             console.log("User display_name:", user.display_name);
             return user.display_name;
         }
-        
+
         console.log("No user data found");
-        return '';
+        return "";
     };
 
     // Redirect if not logged in
@@ -70,7 +82,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             console.log("FetchOrders triggered, user:", user);
-            
+
             if (!user) {
                 setDebugInfo("Нет пользователя");
                 setLoadingOrders(false);
@@ -78,13 +90,13 @@ const Profile = () => {
             }
 
             const userLogin = getUserLogin();
-            
+
             if (!userLogin) {
                 setDebugInfo("Не удалось получить логин пользователя");
                 setLoadingOrders(false);
                 return;
             }
-            
+
             setDebugInfo(`Загружаем заказы для user_login: ${userLogin}`);
             setLoadingOrders(true);
             setErrorOrders(null);
@@ -92,18 +104,36 @@ const Profile = () => {
             try {
                 const requestBody = {
                     user_login: userLogin,
-                    email: user.email || '',
+                    email: user.email || "",
                 };
-                
+
                 console.log("Отправляем запрос:", requestBody);
-                
-                const response = await fetch(`${API}/wp-json/custom/v1/user-orders`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
+
+                const response = await fetch(
+                    `${API}/wp-json/custom/v1/user-orders`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(requestBody),
                     },
-                    body: JSON.stringify(requestBody),
-                });
+                );
+
+                // fetchProfile();
+
+                const res = await fetch(
+                    `${API}/wp-json/custom/v1/user-profile`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(requestBody),
+                    },
+                );
+
+                const data1 = await res.json();
+                console.log("data", data1);
+                setProfileData(data1);
 
                 console.log("Статус ответа:", response.status);
                 setDebugInfo(`Статус ответа: ${response.status}`);
@@ -114,20 +144,21 @@ const Profile = () => {
 
                 const data = await response.json();
                 console.log("Полученные данные:", data);
-                
+
                 if (data.error) {
                     throw new Error(data.error);
                 }
 
                 // Фильтруем заказы - оставляем только те, где user_login совпадает
-                const filteredOrders = data.filter(order => 
-                    order.user_login === userLogin
+                const filteredOrders = data.filter(
+                    (order) => order.user_login === userLogin,
                 );
 
                 console.log("Отфильтрованные заказы:", filteredOrders);
-                setDebugInfo(`Получено всего: ${data.length}, отфильтровано: ${filteredOrders.length}`);
+                setDebugInfo(
+                    `Получено всего: ${data.length}, отфильтровано: ${filteredOrders.length}`,
+                );
                 setOrders(filteredOrders || []);
-                
             } catch (err) {
                 console.error("Ошибка загрузки заказов:", err);
                 setErrorOrders(err.message || "Не удалось загрузить заказы");
@@ -145,14 +176,20 @@ const Profile = () => {
         navigate("/");
     };
 
+    if (user === undefined) {
+        return <div>Загрузка...</div>;
+    }
+
     if (!user) {
+        navigate("/auth");
         return null;
     }
 
     const userLogin = getUserLogin();
-    const userName = user.name || user.display_name || userLogin || 'Пользователь';
-    const userPhone = user.phone || user.billing_phone || 'Телефон не указан';
-    const userEmail = user.email || '';
+    const userName =
+        user.name || user.display_name || userLogin || "Пользователь";
+    const userPhone = user.phone || user.billing_phone || "Телефон не указан";
+    const userEmail = user.email || "";
 
     return (
         <div className="min-h-screen pt-20 bg-gradient-to-br from-white via-blue-50 to-white">
@@ -161,8 +198,8 @@ const Profile = () => {
                 <div className="max-w-7xl mx-auto">
                     <ol className="flex items-center space-x-2 text-sm text-gray-500">
                         <li>
-                            <Link 
-                                to="/" 
+                            <Link
+                                to="/"
                                 className="hover:text-[#c41c20] transition-colors duration-200"
                             >
                                 Главная
@@ -170,7 +207,9 @@ const Profile = () => {
                         </li>
                         <li className="flex items-center">
                             <span className="mx-2">/</span>
-                            <span className="text-gray-900 font-medium">Профиль</span>
+                            <span className="text-gray-900 font-medium">
+                                Профиль
+                            </span>
                         </li>
                     </ol>
                 </div>
@@ -191,7 +230,9 @@ const Profile = () => {
                             {userName}
                         </h1>
                         <p className="text-xl text-white/90">{userPhone}</p>
-                        <p className="text-md text-white/80 mt-2">{userEmail}</p>
+                        <p className="text-md text-white/80 mt-2">
+                            {userEmail}
+                        </p>
                     </div>
                 </div>
             </section>
@@ -199,17 +240,17 @@ const Profile = () => {
             <section className="py-12">
                 <div className="max-w-4xl mx-auto px-4 space-y-8">
                     {/* Отладка */}
-                    {process.env.NODE_ENV === 'development' && (
+                    {process.env.NODE_ENV === "development" && (
                         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm">
                             <p className="font-bold">Отладка:</p>
-                            <p>User Login: {userLogin || 'не определен'}</p>
-                            <p>Email: {userEmail || 'не указан'}</p>
+                            <p>User Login: {userLogin || "не определен"}</p>
+                            <p>Email: {userEmail || "не указан"}</p>
                             <p>Статус: {debugInfo}</p>
                             <p>Найдено заказов: {orders.length}</p>
                             <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-40">
                                 {JSON.stringify(user, null, 2)}
                             </pre>
-                            <button 
+                            <button
                                 onClick={() => window.location.reload()}
                                 className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-lg text-xs"
                             >
@@ -229,21 +270,21 @@ const Profile = () => {
                             <div className="absolute bottom-4 left-4 w-12 h-12 bg-blue-400/20 rounded-full blur-lg" />
                             <div className="relative z-10">
                                 <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mx-auto mb-4 flex items-center justify-center border border-white/30">
-                                    <span className="text-white font-bold text-2xl">Э</span>
+                                    <span className="text-white font-bold text-2xl">
+                                        Э
+                                    </span>
                                 </div>
-                                <p className="text-white font-bold text-xl mb-2">Эгооптика</p>
+                                <p className="text-white font-bold text-xl mb-2">
+                                    Эгооптика
+                                </p>
                                 <p className="text-2xl font-mono tracking-wider mb-6 bg-white/10 backdrop-blur-sm rounded-lg py-2 px-4 inline-block">
-                                    {user.loyaltyCardNumber || "1234 5678 9012 3456"}
+                                    {profileData?.loyaltyCardNumber ||
+                                        "Загрузка..."}
                                 </p>
                                 <div className="flex justify-between text-lg bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                                    <div>
-                                        <span className="block text-white/80 text-sm">Бонусы</span>
-                                        <span className="text-white font-bold text-xl">500 ₽</span>
-                                    </div>
-                                    <div>
-                                        <span className="block text-white/80 text-sm">Скидка</span>
-                                        <span className="text-white font-bold text-xl">5%</span>
-                                    </div>
+                                    <span className="text-white font-bold text-xl">
+                                        {profileData?.welcomeBonusAmount || 0} ₽
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -252,20 +293,30 @@ const Profile = () => {
                     {/* Корзина */}
                     <div className="bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-8 border border-gray-100">
                         <h2 className="text-3xl font-bold text-[#c41c20] mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] flex items-center">
-                            <ShoppingCart size={32} className="mr-3 text-[#e31e24]" />
+                            <ShoppingCart
+                                size={32}
+                                className="mr-3 text-[#e31e24]"
+                            />
                             Корзина
                         </h2>
                         {cart.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <ShoppingCart size={24} className="text-gray-400" />
+                                    <ShoppingCart
+                                        size={24}
+                                        className="text-gray-400"
+                                    />
                                 </div>
-                                <p className="text-gray-600 text-lg mb-2">Корзина пуста</p>
+                                <p className="text-gray-600 text-lg mb-2">
+                                    Корзина пуста
+                                </p>
                                 <Link
                                     to="/frames"
                                     className="inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white hover:-translate-y-1 hover:scale-105 relative overflow-hidden"
                                 >
-                                    <span className="relative z-10">Начать покупки</span>
+                                    <span className="relative z-10">
+                                        Начать покупки
+                                    </span>
                                 </Link>
                             </div>
                         ) : (
@@ -292,15 +343,28 @@ const Profile = () => {
                                                         {item.name}
                                                     </h4>
                                                     <p className="text-gray-600">
-                                                        {Number(item.price).toLocaleString("ru-RU")} ₽
+                                                        {Number(
+                                                            item.price,
+                                                        ).toLocaleString(
+                                                            "ru-RU",
+                                                        )}{" "}
+                                                        ₽
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
                                                 <p className="font-bold text-lg text-[#e31e24]">
-                                                    {(Number(item.price) * item.quantity).toLocaleString("ru-RU")} ₽
+                                                    {(
+                                                        Number(item.price) *
+                                                        item.quantity
+                                                    ).toLocaleString(
+                                                        "ru-RU",
+                                                    )}{" "}
+                                                    ₽
                                                 </p>
-                                                <p className="text-sm text-gray-500">x{item.quantity}</p>
+                                                <p className="text-sm text-gray-500">
+                                                    x{item.quantity}
+                                                </p>
                                             </div>
                                         </div>
                                     );
@@ -312,16 +376,22 @@ const Profile = () => {
                                 )}
                                 <div className="pt-6 border-t border-gray-200">
                                     <div className="flex justify-between text-xl font-bold mb-6">
-                                        <span className="text-[#c41c20]">Итого:</span>
+                                        <span className="text-[#c41c20]">
+                                            Итого:
+                                        </span>
                                         <span className="text-[#e31e24]">
-                                            {totalPrice.toLocaleString("ru-RU")} ₽
+                                            {totalPrice.toLocaleString("ru-RU")}{" "}
+                                            ₽
                                         </span>
                                     </div>
                                     <Link
                                         to="/checkout"
                                         className="w-full inline-flex items-center justify-center space-x-2 py-4 rounded-2xl font-semibold transition-all duration-300 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white shadow-[0_8px_32px_rgba(227,30,36,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] border border-[#e31e24]/20 hover:-translate-y-1 hover:scale-105 before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-t before:from-transparent before:to-white before:opacity-0 hover:before:opacity-20 relative overflow-hidden"
                                     >
-                                        <CreditCard size={20} className="relative z-10" />
+                                        <CreditCard
+                                            size={20}
+                                            className="relative z-10"
+                                        />
                                         <span className="relative z-10 text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
                                             Оформить заказ
                                         </span>
@@ -334,21 +404,31 @@ const Profile = () => {
                     {/* Заказы */}
                     <div className="bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-8 border border-gray-100">
                         <h2 className="text-3xl font-bold text-[#c41c20] mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] flex items-center">
-                            <Package size={32} className="mr-3 text-[#e31e24]" />
+                            <Package
+                                size={32}
+                                className="mr-3 text-[#e31e24]"
+                            />
                             Мои заказы
                         </h2>
-                        
+
                         {loadingOrders ? (
                             <div className="text-center py-12">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#e31e24] mx-auto mb-4"></div>
-                                <p className="text-gray-600">Загрузка заказов...</p>
+                                <p className="text-gray-600">
+                                    Загрузка заказов...
+                                </p>
                             </div>
                         ) : errorOrders ? (
                             <div className="text-center py-12">
                                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <AlertCircle size={24} className="text-red-500" />
+                                    <AlertCircle
+                                        size={24}
+                                        className="text-red-500"
+                                    />
                                 </div>
-                                <p className="text-gray-600 mb-2">{errorOrders}</p>
+                                <p className="text-gray-600 mb-2">
+                                    {errorOrders}
+                                </p>
                                 <button
                                     onClick={() => window.location.reload()}
                                     className="text-[#e31e24] hover:underline text-sm"
@@ -359,7 +439,10 @@ const Profile = () => {
                         ) : orders.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Package size={24} className="text-gray-400" />
+                                    <Package
+                                        size={24}
+                                        className="text-gray-400"
+                                    />
                                 </div>
                                 <p className="text-gray-600 text-lg mb-2">
                                     У вас пока нет заказов
@@ -368,7 +451,9 @@ const Profile = () => {
                                     to="/frames"
                                     className="inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white hover:-translate-y-1 hover:scale-105 relative overflow-hidden"
                                 >
-                                    <span className="relative z-10">Начать покупки</span>
+                                    <span className="relative z-10">
+                                        Начать покупки
+                                    </span>
                                 </Link>
                             </div>
                         ) : (
@@ -381,33 +466,51 @@ const Profile = () => {
                                         <div className="flex-1">
                                             <div className="flex items-center space-x-3">
                                                 <p className="font-semibold text-[#c41c20] group-hover:text-[#e31e24] transition-colors duration-300">
-                                                    Заказ {order.id_formatted || `#${order.id}`}
+                                                    Заказ{" "}
+                                                    {order.id_formatted ||
+                                                        `#${order.id}`}
                                                 </p>
-                                                {process.env.NODE_ENV === 'development' && order.user_login && (
-                                                    <span className="text-xs text-gray-400">
-                                                        (user_login: {order.user_login})
-                                                    </span>
-                                                )}
+                                                {process.env.NODE_ENV ===
+                                                    "development" &&
+                                                    order.user_login && (
+                                                        <span className="text-xs text-gray-400">
+                                                            (user_login:{" "}
+                                                            {order.user_login})
+                                                        </span>
+                                                    )}
                                             </div>
-                                            <p className="text-sm text-gray-600">{order.date}</p>
+                                            <p className="text-sm text-gray-600">
+                                                {order.date}
+                                            </p>
                                             <p className="text-sm text-gray-500">
-                                                {order.items_count} {getItemsText(order.items_count)}
+                                                {order.items_count}{" "}
+                                                {getItemsText(
+                                                    order.items_count,
+                                                )}
                                             </p>
                                         </div>
                                         <div className="text-right">
                                             <p className="font-bold text-lg text-[#e31e24]">
-                                                {order.total_formatted || order.total}
+                                                {order.total_formatted ||
+                                                    order.total}
                                             </p>
                                             <span
                                                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mt-2 ${
-                                                    order.status === "completed" || order.status_text === "Доставлен"
+                                                    order.status ===
+                                                        "completed" ||
+                                                    order.status_text ===
+                                                        "Доставлен"
                                                         ? "bg-green-100 text-green-800 border border-green-200"
-                                                        : order.status === "cancelled" || order.status_text === "Отменён"
-                                                        ? "bg-red-100 text-red-800 border border-red-200"
-                                                        : "bg-blue-100 text-blue-800 border border-blue-200"
+                                                        : order.status ===
+                                                                "cancelled" ||
+                                                            order.status_text ===
+                                                                "Отменён"
+                                                          ? "bg-red-100 text-red-800 border border-red-200"
+                                                          : "bg-blue-100 text-blue-800 border border-blue-200"
                                                 }`}
                                             >
-                                                {order.status_text || order.status}
+                                                {order.status_text ||
+                                                    order.status}
                                             </span>
                                         </div>
                                     </div>
@@ -436,9 +539,10 @@ const Profile = () => {
 
 // Вспомогательная функция для склонения слова "товар"
 function getItemsText(count) {
-    if (count % 10 === 1 && count % 100 !== 11) return 'товар';
-    if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) return 'товара';
-    return 'товаров';
+    if (count % 10 === 1 && count % 100 !== 11) return "товар";
+    if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100))
+        return "товара";
+    return "товаров";
 }
 
 export default Profile;
