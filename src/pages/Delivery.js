@@ -135,7 +135,6 @@ const Delivery = () => {
             </nav>
 
             {/* Hero Section */}
-            {/* Hero Section */}
             <section className="py-20 bg-gradient-to-br from-[#c41c20] via-[#e31e24] to-[#e31e24]/80 text-white relative overflow-hidden">
                 {/* Фон */}
                 <div
