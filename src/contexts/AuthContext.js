@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Проверяем токен и загружаем пользователя при монтировании / изменении token
+    // Проверяем токен и загружаем пользователя
     useEffect(() => {
         const validateToken = async () => {
             if (!token) {
@@ -41,19 +41,14 @@ export const AuthProvider = ({ children }) => {
 
                 if (!res.ok) {
                     const errData = await res.json().catch(() => ({}));
-                    throw new Error(
-                        errData.message || "Токен недействителен или истёк",
-                    );
+                    throw new Error(errData.message || "Токен недействителен или истёк");
                 }
 
                 const userData = await res.json();
                 setUser(userData);
             } catch (err) {
                 console.error("Ошибка авторизации:", err);
-                setError(
-                    err.message ||
-                        "Сессия истекла. Пожалуйста, войдите заново.",
-                );
+                setError(err.message || "Сессия истекла. Пожалуйста, войдите заново.");
                 localStorage.removeItem("jwt");
                 setToken(null);
                 setUser(null);
@@ -65,7 +60,7 @@ export const AuthProvider = ({ children }) => {
         validateToken();
     }, [token]);
 
-    // Функция входа — вызывается из формы
+    // ЛОГИН
     const login = async (username, password) => {
         try {
             setLoading(true);
@@ -73,9 +68,7 @@ export const AuthProvider = ({ children }) => {
 
             const res = await fetch(`${API}/wp-json/jwt-auth/v1/token`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
             });
 
@@ -87,15 +80,52 @@ export const AuthProvider = ({ children }) => {
 
             localStorage.setItem("jwt", data.token);
             setToken(data.token);
-            // Пользователь загрузится автоматически через useEffect
+            return data;
         } catch (err) {
             setError(err.message || "Ошибка входа");
-            throw err; // чтобы компонент мог поймать ошибку
+            throw err;
         } finally {
             setLoading(false);
         }
     };
 
+    // РЕГИСТРАЦИЯ (новая функция — использует кастомный эндпоинт)
+    const register = async (email, password, first_name = "", last_name = "") => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const regRes = await fetch(`${API}/wp-json/custom/v1/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, first_name, last_name }),
+            });
+
+            const regData = await regRes.json();
+
+            if (!regRes.ok) {
+                let message = "Ошибка регистрации";
+                if (regData.code === "user_exists" || regData.message?.includes("уже существует")) {
+                    message = "Пользователь с таким email уже существует";
+                } else if (regData.message) {
+                    message = regData.message;
+                }
+                throw new Error(message);
+            }
+
+            // Автоматический вход после успешной регистрации
+            await login(email, password);
+
+            return { success: true, message: "Регистрация прошла успешно" };
+        } catch (err) {
+            setError(err.message || "Ошибка регистрации");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ВЫХОД
     const logout = () => {
         localStorage.removeItem("jwt");
         setToken(null);
@@ -109,6 +139,7 @@ export const AuthProvider = ({ children }) => {
                 token,
                 user,
                 login,
+                register,           // ← теперь доступна везде
                 logout,
                 isAuthenticated: !!token && !!user,
                 loading,

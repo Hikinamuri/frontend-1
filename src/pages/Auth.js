@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const API = process.env.REACT_APP_API_URL || "https://egooptika.ru";
 
 const Auth = () => {
-  const { login } = useAuth();
+  const { login, register, loading: authLoading, error: authError } = useAuth();
   const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(true);
@@ -14,8 +14,7 @@ const Auth = () => {
     email: "",
     password: "",
   });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [showLoyaltyCard, setShowLoyaltyCard] = useState(false);
 
@@ -25,8 +24,7 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
+    setLocalError(null);
 
     try {
       if (isLogin) {
@@ -36,36 +34,13 @@ const Auth = () => {
         setTimeout(() => navigate("/profile"), 1500);
       } else {
         // РЕГИСТРАЦИЯ
-        const res = await fetch(`${API}/wp-json/wp/v2/users`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: form.email, // WP сам сделает username из email
-            email: form.email,
-            password: form.password,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(
-            data.message ||
-              "Ошибка регистрации. Возможно, email уже занят."
-          );
-        }
-
-        // Автоматический вход после регистрации
-        await login(form.email, form.password);
-
+        await register(form.email, form.password);
         setSuccess(true);
         setShowLoyaltyCard(true);
         setTimeout(() => navigate("/profile"), 2000);
       }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      setLocalError(err.message);
     }
   };
 
@@ -73,8 +48,15 @@ const Auth = () => {
     setForm({ email: "", password: "" });
     setShowLoyaltyCard(false);
     setSuccess(false);
-    setError(null);
+    setLocalError(null);
   };
+
+  const displayError = localError || authError;
+
+  // Убираем все HTML-теги (<strong>, <a> и т.д.) — выводим только чистый текст
+  const cleanError = displayError 
+    ? displayError.replace(/<[^>]*>/g, '').trim() 
+    : null;
 
   return (
     <div className="min-h-screen pt-20">
@@ -157,9 +139,9 @@ const Auth = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
-                {error && (
+                {cleanError && (
                   <div className="text-red-600 text-center font-medium bg-red-50 p-3 rounded-xl">
-                    {error}
+                    {cleanError}
                   </div>
                 )}
 
@@ -207,14 +189,14 @@ const Auth = () => {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={authLoading}
                   className={`w-full py-4 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white font-bold rounded-xl transition-all duration-300 relative overflow-hidden group hover:scale-[1.02] ${
-                    loading ? "opacity-60 cursor-not-allowed" : ""
+                    authLoading ? "opacity-60 cursor-not-allowed" : ""
                   }`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 group-hover:to-white/30 rounded-xl transition-all duration-300"></div>
                   <span className="relative z-10">
-                    {loading
+                    {authLoading
                       ? "Загрузка..."
                       : isLogin
                       ? "Войти"
@@ -294,7 +276,7 @@ const Auth = () => {
               </div>
               <div className="mt-6 text-center">
                 <p className="text-gray-600">
-                  Показывайте эту карту при покупке и получайте бонусы!
+                  Показывайте эту карту при покупке и получаете бонусы!
                 </p>
               </div>
             </div>
