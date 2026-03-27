@@ -23,6 +23,7 @@ const Navbar = () => {
     const catalogLinks = [
         { path: "/frames", label: "Оправы" },
         { path: "/sunglasses", label: "Солнцезащитные очки" },
+        { path: "/child-glasses", label: "Детские очки" },
     ];
 
     const handleLogout = () => {

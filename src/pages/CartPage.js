@@ -361,7 +361,7 @@ const CartPage = () => {
                                 )}
 
                                 <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                                    <div className="flex items-center space-x-3 text-sm text-gray-600">
+                                    {/* <div className="flex items-center space-x-3 text-sm text-gray-600">
                                         <Truck
                                             size={16}
                                             className="text-[#e31e24] flex-shrink-0"
@@ -369,7 +369,7 @@ const CartPage = () => {
                                         <span>
                                             Бесплатная доставка от 25 000 ₽
                                         </span>
-                                    </div>
+                                    </div> */}
                                     <div className="flex items-center space-x-3 text-sm text-gray-600">
                                         <Shield
                                             size={16}

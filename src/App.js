@@ -19,6 +19,7 @@ import CheckoutPage from "@/pages/CheckoutPage";
 import ShippingPage from "@/pages/ShippingPage";
 import PaymentPage from "@/pages/PaymentPage";
 import WarrantyPage from "@/pages/WarrantyPage";
+import ChildGlasses from '@/pages/ChildGlasses';
 
 function App() {
     return (
@@ -38,6 +39,7 @@ function App() {
                                 element={<HowToOrder />}
                             />
                             <Route path="/frames" element={<Frames />} />
+                            <Route path="/child-glasses" element={<ChildGlasses />} />
                             <Route
                                 path="/sunglasses"
                                 element={<Sunglasses />}

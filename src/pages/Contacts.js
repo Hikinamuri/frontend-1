@@ -42,7 +42,7 @@ const Contacts = () => {
         {
             name: "Салон на Ершова",
             address: "г. Казань, Николая Ершова, 47",
-            phones: ["+7 (843) 272-91-65"],
+            phones: ["+7 (951) 896-71-17"],
             hours: "Пн-Пт: 10:00 — 20:00 Сб: 10:00 — 18:00 Вс: выходной",
             image: Ershowa,
             mapUrl: "https://yandex.ru/maps/org/egooptika/73340528068/",
@@ -50,7 +50,7 @@ const Contacts = () => {
         {
             name: "Салон на Меридианной",
             address: "г. Казань, Меридианная, 4",
-            phones: ["+7 (843) 528-07-08"],
+            phones: ["+7 (939) 809-52-80"],
             hours: "Пн-Пт: 9:00 — 20:00 Сб: 10:00 — 19:00 Вс: выходной",
             image: Meridian,
             mapUrl: "https://yandex.ru/maps/org/egooptika/138533122876/",
@@ -285,7 +285,7 @@ const Contacts = () => {
                                         <MessageCircle size={20} />
                                         <span>+7 (939) 807-47-79</span>
                                         <span className="text-sm bg-white/20 px-2 py-1 rounded-full">
-                                            WhatsApp Telegram
+                                            MAX Telegram
                                         </span>
                                     </a>
                                 </div>
@@ -334,7 +334,7 @@ const Contacts = () => {
                                     </h3>
                                     <p className="text-gray-700">
                                         420061, РТ г. Казань ул. Н.Ершова,
-                                        д.47/5 24/7
+                                        д.47/5
                                     </p>
                                 </div>
 
@@ -344,7 +344,7 @@ const Contacts = () => {
                                     </h3>
                                     <p className="text-gray-700">
                                         420061, РТ г. Казань ул. Н.Ершова,
-                                        д.47/5 24/7
+                                        д.47/5
                                     </p>
                                 </div>
 

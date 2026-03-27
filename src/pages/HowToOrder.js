@@ -221,12 +221,12 @@ const HowToOrder = () => {
                             </span>
                         </a>
                         <a
-                            href="mailto:info@egooptika.ru"
+                            href="mailto:egooptika@yandex.ru"
                             className="inline-flex items-center justify-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-[0_8px_32px_rgba(59,130,246,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] border border-blue-500/20 hover:shadow-[0_12px_40px_rgba(59,130,246,0.5)] hover:-translate-y-1 hover:scale-105 before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-t before:from-transparent before:to-white before:opacity-0 hover:before:opacity-20 relative overflow-hidden"
                         >
                             <Mail size={20} className="relative z-10" />
                             <span className="relative z-10 text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
-                                info@egooptika.ru
+                                egooptika@yandex.ru
                             </span>
                         </a>
                     </div>

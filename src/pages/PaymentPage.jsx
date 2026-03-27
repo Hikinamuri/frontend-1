@@ -47,7 +47,7 @@ const PaymentPage = () => {
                         <ol className="space-y-4 text-gray-700">
                             <li>
                                 1. Укажите реквизиты организации в комментарии к
-                                заказу или отправьте их на info@egooptika.ru
+                                заказу или отправьте их на egooptika@yandex.ru
                             </li>
                             <li>2. Менеджеры выставят счет на оплату.</li>
                             <li>
@@ -58,7 +58,7 @@ const PaymentPage = () => {
 
                         <p className="mt-6 text-sm text-gray-600">
                             Для ускорения отправки направьте подтверждение
-                            оплаты на e-mail info@egooptika.ru, указав номер
+                            оплаты на e-mail egooptika@yandex.ru, указав номер
                             заказа в теме письма.
                         </p>
                     </div>

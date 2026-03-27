@@ -707,7 +707,7 @@ const ProductPage = () => {
                                     Преимущества
                                 </h4>
                                 <ul className="space-y-4">
-                                    <li className="flex items-start space-x-4 group">
+                                    {/* <li className="flex items-start space-x-4 group">
                                         <div className="w-8 h-8 bg-gradient-to-br from-[#e31e24] to-[#c41c20] rounded-full flex items-center justify-center flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
                                             <Truck
                                                 size={16}
@@ -718,7 +718,7 @@ const ProductPage = () => {
                                             Бесплатная доставка при заказе от 25
                                             000 ₽
                                         </span>
-                                    </li>
+                                    </li> */}
                                     <li className="flex items-start space-x-4 group">
                                         <div className="w-8 h-8 bg-gradient-to-br from-[#e31e24] to-[#c41c20] rounded-full flex items-center justify-center flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
                                             <Check

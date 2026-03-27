@@ -165,7 +165,7 @@ const Home = () => {
     const addresses = [
         {
             address: "г. Казань, Николая Ершова, 47",
-            phones: ["+7 951-896-71-17"],
+            phones: ["+7 (951) 896-71-17"],
             schedule: "Пн-Пт: 10.00 — 20.00 Сб: 10.00 — 18.00 Вс: выходной",
             mapUrl: "https://yandex.ru/maps/org/egooptika/73340528068/",
         },
@@ -242,7 +242,7 @@ const Home = () => {
             </section>
 
             {/* Hero Section with Parallax and Background Image */}
-            <section className="hero-section relative overflow-hidden h-screen flex items-center justify-center bg-gradient-to-br from-deepBlue via-[#9c0101] to-[#740000]">
+            <section className="hero-section relative overflow-hidden h-screen flex items-center justify-center bg-gradient-to-br from-deepBlue via-[#9c0101] to-[#e31e24]">
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-20"
                     style={{
@@ -390,7 +390,7 @@ const Home = () => {
                                 key={index}
                                 className="animate-on-scroll opacity-0 text-center p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 bg-white border border-gray-100"
                             >
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full text-white mb-4 transform hover:scale-110 transition-transform duration-300 mx-auto bg-gradient-to-r from-[#9c0101] to-[#740000] shadow-[0_4px_14px_0_rgba(156,1,1,0.3)]">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full text-white mb-4 transform hover:scale-110 transition-transform duration-300 mx-auto bg-gradient-to-r from-[#9c0101] to-[#e31e24] shadow-[0_4px_14px_0_rgba(156,1,1,0.3)]">
                                     {feature.icon}
                                 </div>
                                 <h3 className="text-xl font-bold text-[#740000] mb-2 [text-shadow:0_2px_4px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.5)]">
@@ -419,7 +419,7 @@ const Home = () => {
                     <div className="flex flex-col sm:flex-row gap-6 justify-center animate-on-scroll opacity-0">
                         <Link
                             to="/frames"
-                            className="inline-flex items-center justify-center space-x-3 px-8 py-4 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-[#9c0101] to-[#740000] text-white shadow-[0_8px_32px_rgba(156,1,1,0.4)] hover:-translate-y-1 hover:scale-105"
+                            className="inline-flex items-center justify-center space-x-3 px-8 py-4 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-[#9c0101] to-[#e31e24] text-white shadow-[0_8px_32px_rgba(156,1,1,0.4)] hover:-translate-y-1 hover:scale-105"
                             style={{ position: "relative", overflow: "hidden" }}
                         >
                             <ShoppingBag size={24} />

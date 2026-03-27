@@ -101,10 +101,10 @@ const Footer = () => {
                                     className="text-gold mt-1 flex-shrink-0"
                                 />
                                 <a
-                                    href="mailto:info@egooptica.ru"
+                                    href="mailto:egooptika@yandex.ru"
                                     className="text-gray-300 hover:text-gold transition-colors duration-300"
                                 >
-                                    info@egooptica.ru
+                                    egooptika@yandex.ru
                                 </a>
                             </li>
                             <li className="flex items-start space-x-3">
