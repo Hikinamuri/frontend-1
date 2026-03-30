@@ -8,7 +8,6 @@ import {
     ArrowLeft,
     AlertCircle,
     Shield,
-    Truck,
     Award,
     X,
     ChevronLeft,
@@ -17,6 +16,9 @@ import {
     ZoomIn,
     ZoomOut,
     RotateCcw,
+    CreditCard,
+    Mail,
+    Lock,
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,10 +29,143 @@ const API_BASE =
 const CONSUMER_KEY = process.env.REACT_APP_WC_KEY;
 const CONSUMER_SECRET = process.env.REACT_APP_WC_SECRET;
 
+// Mock data for fallback when API fails to load
+const MOCK_PRODUCTS = [
+    {
+        id: 1,
+        name: "Ray-Ban Aviator Classic",
+        brand: "Ray-Ban",
+        price: 15990,
+        description:
+            "Классические авиаторы Ray-Ban с металлической оправой. Легендарная модель, которая никогда не выходит из моды. Идеально подходят для любого типа лица.",
+        images: [
+            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        ],
+        specs: {
+            Пол: "Унисекс",
+            Материал: "Металл",
+            Форма: "Авиатор",
+            Цвет: "Золото",
+            Страна: "Италия",
+        },
+        sku: "RB-3025-001",
+        inStock: true,
+        categories: [108],
+    },
+    {
+        id: 2,
+        name: "Prada PR 01OS",
+        brand: "Prada",
+        price: 22990,
+        description:
+            "Стильные оправы Prada с характерным логотипом. Идеальный выбор для повседневной носки.",
+        images: [
+            "https://images.unsplash.com/photo-1591076482161-42ce6da69f67?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1591076482161-42ce6da69f67?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        ],
+        specs: {
+            Пол: "Женский",
+            Материал: "Пластик",
+            Форма: "Прямоугольная",
+            Цвет: "Черный",
+            Страна: "Италия",
+        },
+        sku: "PR-01OS-BLK",
+        inStock: true,
+        categories: [104],
+    },
+    {
+        id: 3,
+        name: "Gucci GG0066S",
+        brand: "Gucci",
+        price: 28990,
+        description:
+            "Эксклюзивные солнцезащитные очки Gucci с узнаваемым дизайном. Сочетание стиля и комфорта.",
+        images: [
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        ],
+        specs: {
+            Пол: "Женский",
+            Материал: "Пластик",
+            Форма: "Кошачий глаз",
+            Цвет: "Черный/Золото",
+            Страна: "Италия",
+        },
+        sku: "GG0066S-001",
+        inStock: true,
+        categories: [108],
+    },
+    {
+        id: 4,
+        name: "Tom Ford FT5543",
+        brand: "Tom Ford",
+        price: 34990,
+        description:
+            "Элегантные оправы Tom Ford с титановым покрытием. Премиальное качество и безупречный стиль.",
+        images: [
+            "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        ],
+        specs: {
+            Пол: "Мужской",
+            Материал: "Металл",
+            Форма: "Прямоугольная",
+            Цвет: "Серебро",
+            Страна: "Италия",
+        },
+        sku: "FT5543-SLV",
+        inStock: true,
+        categories: [104],
+    },
+    {
+        id: 5,
+        name: "Oakley Holbrook",
+        brand: "Oakley",
+        price: 18990,
+        description:
+            "Спортивные солнцезащитные очки Oakley с технологией защиты от ультрафиолета. Идеальны для активного отдыха.",
+        images: [
+            "https://images.unsplash.com/photo-1577803645773-f96470509666?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        ],
+        specs: {
+            Пол: "Мужской",
+            Материал: "Пластик",
+            Форма: "Спортивная",
+            Цвет: "Мат черный",
+            Страна: "США",
+        },
+        sku: "OO9102-01",
+        inStock: true,
+        categories: [108],
+    },
+    {
+        id: 6,
+        name: "Chanel 5320",
+        brand: "Chanel",
+        price: 45990,
+        description:
+            "Изысканные оправы Chanel с культовым логотипом. Высокая мода и непревзойденное качество.",
+        images: [
+            "https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        ],
+        specs: {
+            Пол: "Женский",
+            Материал: "Пластик",
+            Форма: "Кошачий глаз",
+            Цвет: "Черный/Белый",
+            Страна: "Франция",
+        },
+        sku: "5320-C501",
+        inStock: true,
+        categories: [104],
+    },
+];
+
 const ProductPage = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
-    const { user } = useAuth();
+    const { user, login, register, loading: authLoading, error: authError } = useAuth();
     const navigate = useNavigate();
 
     const [selectedImage, setSelectedImage] = useState(0);
@@ -41,6 +176,14 @@ const ProductPage = () => {
     const [loading, setLoading] = useState(true);
     const [loadingSimilar, setLoadingSimilar] = useState(false);
     const [error, setError] = useState(null);
+    const [showDiscountModal, setShowDiscountModal] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [isLogin, setIsLogin] = useState(true);
+    const [authForm, setAuthForm] = useState({ email: "", password: "" });
+    const [localAuthError, setLocalAuthError] = useState(null);
+    const [authSuccess, setAuthSuccess] = useState(false);
+    const [showLoyaltyCard, setShowLoyaltyCard] = useState(false);
+    const [hasShownModal, setHasShownModal] = useState(false); // Флаг для отслеживания показа модального окна
 
     // Lightbox states
     const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -50,7 +193,7 @@ const ProductPage = () => {
     const [dragging, setDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-    // Magnifier states (for card view)
+    // Magnifier states
     const imageContainerRef = useRef(null);
     const [showMagnifier, setShowMagnifier] = useState(false);
     const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
@@ -58,6 +201,17 @@ const ProductPage = () => {
     // Category determination
     const [categoryPath, setCategoryPath] = useState("/frames");
     const [categoryName, setCategoryName] = useState("Оправы");
+
+    // Показываем модальное окно только один раз
+    useEffect(() => {
+        if (!user && !hasShownModal && !showAuthModal && !showDiscountModal) {
+            const timer = setTimeout(() => {
+                setShowDiscountModal(true);
+                setHasShownModal(true); // Устанавливаем флаг, что окно было показано
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [user, hasShownModal, showAuthModal, showDiscountModal]);
 
     const mapProduct = (wooProduct) => {
         const attributes = {};
@@ -91,12 +245,79 @@ const ProductPage = () => {
     };
 
     const fetchSimilarProducts = async (currentProduct) => {
-        if (!CONSUMER_KEY || !CONSUMER_SECRET || !currentProduct) return;
+        if (!currentProduct) return;
 
+        // ====================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ======================
+        const getGenderScore = (currentGender, pGender) => {
+            if (!currentGender || !pGender) return 1;
+            if (currentGender === pGender) return 3;                    // идеальное совпадение
+            if (currentGender === "Унисекс" || pGender === "Унисекс") return 2; // unisex — универсал
+            return 0; // мужчина ↔ женщина = 0
+        };
+
+        const getMaterialScore = (currentMaterial, pMaterial) => {
+            if (!currentMaterial || !pMaterial) return 1;
+
+            const cMetal = currentMaterial.toLowerCase().includes("металл");
+            const pMetal = pMaterial.toLowerCase().includes("металл");
+            const cPlastic = currentMaterial.toLowerCase().includes("пластик");
+            const pPlastic = pMaterial.toLowerCase().includes("пластик");
+
+            if (cMetal && pMetal) return 3;
+            if (cPlastic && pPlastic) return 3;
+            if ((cMetal || cPlastic) && (pMetal || pPlastic)) return 2; // смешанный материал
+
+            return 0;
+        };
+        // =====================================================================
+
+        // Если API не настроен — работаем с мок-данными
+        if (!CONSUMER_KEY || !CONSUMER_SECRET) {
+            const scored = MOCK_PRODUCTS
+                .filter(p => p.id !== currentProduct.id)
+                .map(p => {
+                    const genderScore = getGenderScore(
+                        currentProduct.specs["Пол"],
+                        p.specs["Пол"]
+                    );
+                    const materialScore = getMaterialScore(
+                        currentProduct.specs["Материал"],
+                        p.specs["Материал"]
+                    );
+                    const brandBonus = p.brand === currentProduct.brand ? 2 : 0;
+
+                    return {
+                        ...p,
+                        score: genderScore + materialScore + brandBonus,
+                    };
+                })
+                .sort((a, b) => b.score - a.score);
+
+            const displayProducts = scored.slice(0, 6).map(p => ({
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                image: p.images[0],
+                brand: p.brand,
+            }));
+
+            setSimilarProducts(displayProducts.length > 0 
+                ? displayProducts 
+                : MOCK_PRODUCTS.filter(p => p.id !== currentProduct.id).slice(0, 6)
+                    .map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        price: p.price,
+                        image: p.images[0],
+                        brand: p.brand,
+                    }))
+            );
+            return;
+        }
+
+        // ====================== РЕАЛЬНЫЙ API ======================
         try {
             setLoadingSimilar(true);
-
-            let candidates = [];
 
             const response = await axios.get(`${API_BASE}/products`, {
                 params: {
@@ -112,112 +333,79 @@ const ProductPage = () => {
 
             const mappedAll = response.data.map(mapProduct);
 
-            const byAttrs = mappedAll.filter((p) => {
-                const sameGender =
-                    !currentProduct.specs["Пол"] ||
-                    p.specs["Пол"] === currentProduct.specs["Пол"];
-                const sameMaterial =
-                    !currentProduct.specs["Материал"] ||
-                    p.specs["Материал"] === currentProduct.specs["Материал"];
-                return sameGender && sameMaterial;
-            });
+            const scored = mappedAll
+                .map(p => {
+                    const genderScore = getGenderScore(
+                        currentProduct.specs["Пол"],
+                        p.specs["Пол"]
+                    );
+                    const materialScore = getMaterialScore(
+                        currentProduct.specs["Материал"],
+                        p.specs["Материал"]
+                    );
+                    const brandBonus = p.brand === currentProduct.brand ? 2 : 0;
 
-            candidates = byAttrs;
+                    return {
+                        ...p,
+                        score: genderScore + materialScore + brandBonus,
+                    };
+                })
+                .filter(p => p.score > 0) // только товары с хотя бы минимальным совпадением
+                .sort((a, b) => b.score - a.score);
 
-            if (
-                candidates.length < 6 &&
-                currentProduct.brand !== "Без бренда"
-            ) {
-                const byBrand = mappedAll.filter(
-                    (p) =>
-                        p.brand === currentProduct.brand &&
-                        !candidates.some((c) => c.id === p.id),
-                );
-                candidates = [
-                    ...candidates,
-                    ...byBrand.slice(0, 6 - candidates.length),
-                ];
+            let candidates = scored.slice(0, 6);
+
+            // Если мало — добираем по бренду
+            if (candidates.length < 6 && currentProduct.brand !== "Без бренда") {
+                const byBrand = mappedAll
+                    .filter(p => 
+                        p.brand === currentProduct.brand && 
+                        !candidates.some(c => c.id === p.id)
+                    )
+                    .slice(0, 6 - candidates.length);
+
+                candidates = [...candidates, ...byBrand];
             }
 
+            // Если всё ещё мало — добираем любые товары
             if (candidates.length < 6) {
-                const minPrice = currentProduct.price * 0.7;
-                const maxPrice = currentProduct.price * 1.3;
-                try {
-                    const priceResp = await axios.get(`${API_BASE}/products`, {
-                        params: {
-                            consumer_key: CONSUMER_KEY,
-                            consumer_secret: CONSUMER_SECRET,
-                            per_page: 50,
-                            exclude: currentProduct.id,
-                            status: "publish",
-                            stock_status: "instock",
-                            min_price: Math.floor(minPrice),
-                            max_price: Math.ceil(maxPrice),
-                        },
-                        timeout: 10000,
-                    });
-                    const mappedPrice = priceResp.data
-                        .map(mapProduct)
-                        .filter((p) => !candidates.some((c) => c.id === p.id));
-                    candidates = [
-                        ...candidates,
-                        ...mappedPrice.slice(0, 6 - candidates.length),
-                    ];
-                } catch (err) {
-                    console.log("Ошибка загрузки по цене:", err.message);
-                }
+                const remaining = mappedAll
+                    .filter(p => !candidates.some(c => c.id === p.id))
+                    .slice(0, 6 - candidates.length);
+                candidates = [...candidates, ...remaining];
             }
 
-            if (candidates.length < 6) {
-                const remaining = mappedAll.filter(
-                    (p) => !candidates.some((c) => c.id === p.id),
-                );
-                candidates = [
-                    ...candidates,
-                    ...remaining.slice(0, 6 - candidates.length),
-                ];
-            }
-
-            const displayProducts = candidates.map((p) => ({
+            const displayProducts = candidates.map(p => ({
                 id: p.id,
                 name: p.name,
                 price: p.price,
-                image:
-                    p.images[0] ||
-                    "https://via.placeholder.com/300?text=No+Image",
+                image: p.images[0] || "https://via.placeholder.com/300?text=No+Image",
                 brand: p.brand,
             }));
 
-            const shuffled = displayProducts
-                .sort(() => Math.random() - 0.5)
-                .slice(0, 6);
-
-            setSimilarProducts(shuffled);
+            setSimilarProducts(displayProducts);
         } catch (err) {
             console.error("Ошибка загрузки похожих товаров:", err);
-            setSimilarProducts([
-                {
-                    id: 1,
-                    name: "Очки Ray-Ban Aviator",
-                    price: 15000,
-                    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-                    brand: "Ray-Ban",
-                },
-                {
-                    id: 2,
-                    name: "Оправы Prada PR 01OS",
-                    price: 22000,
-                    image: "https://images.unsplash.com/photo-1591076482161-42ce6da69f67?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-                    brand: "Prada",
-                },
-                {
-                    id: 3,
-                    name: "Солнцезащитные очки Gucci",
-                    price: 28000,
-                    image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-                    brand: "Gucci",
-                },
-            ]);
+            // При ошибке API — падаем на улучшенную мок-логику (выше)
+            const scored = MOCK_PRODUCTS
+                .filter(p => p.id !== currentProduct.id)
+                .map(p => {
+                    const genderScore = getGenderScore(currentProduct.specs["Пол"], p.specs["Пол"]);
+                    const materialScore = getMaterialScore(currentProduct.specs["Материал"], p.specs["Материал"]);
+                    const brandBonus = p.brand === currentProduct.brand ? 2 : 0;
+                    return { ...p, score: genderScore + materialScore + brandBonus };
+                })
+                .sort((a, b) => b.score - a.score);
+
+            setSimilarProducts(
+                scored.slice(0, 6).map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    image: p.images[0],
+                    brand: p.brand,
+                }))
+            );
         } finally {
             setLoadingSimilar(false);
         }
@@ -226,7 +414,25 @@ const ProductPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             if (!CONSUMER_KEY || !CONSUMER_SECRET) {
-                setError("Ключи API не настроены");
+                const mockProduct = MOCK_PRODUCTS.find((p) => p.id === parseInt(id));
+                if (mockProduct) {
+                    setProduct(mockProduct);
+                    fetchSimilarProducts(mockProduct);
+
+                    const categories = mockProduct.categories || [];
+                    if (categories.includes(108)) {
+                        setCategoryPath("/sunglasses");
+                        setCategoryName("Солнцезащитные очки");
+                    } else if (categories.includes(104)) {
+                        setCategoryPath("/frames");
+                        setCategoryName("Оправы");
+                    } else {
+                        setCategoryPath("/frames");
+                        setCategoryName("Оправы");
+                    }
+                } else {
+                    setError("Товар не найден");
+                }
                 setLoading(false);
                 return;
             }
@@ -247,7 +453,6 @@ const ProductPage = () => {
                 setProduct(mappedProduct);
                 fetchSimilarProducts(mappedProduct);
 
-                // Определяем категорию
                 const categories = mappedProduct.categories || [];
                 if (categories.includes(108)) {
                     setCategoryPath("/sunglasses");
@@ -256,13 +461,30 @@ const ProductPage = () => {
                     setCategoryPath("/frames");
                     setCategoryName("Оправы");
                 } else {
-                    // Default to frames if unknown
                     setCategoryPath("/frames");
                     setCategoryName("Оправы");
                 }
             } catch (err) {
                 console.error("Ошибка загрузки товара:", err);
-                setError(`Ошибка загрузки товара: ${err.message}`);
+                const mockProduct = MOCK_PRODUCTS.find((p) => p.id === parseInt(id));
+                if (mockProduct) {
+                    setProduct(mockProduct);
+                    fetchSimilarProducts(mockProduct);
+
+                    const categories = mockProduct.categories || [];
+                    if (categories.includes(108)) {
+                        setCategoryPath("/sunglasses");
+                        setCategoryName("Солнцезащитные очки");
+                    } else if (categories.includes(104)) {
+                        setCategoryPath("/frames");
+                        setCategoryName("Оправы");
+                    } else {
+                        setCategoryPath("/frames");
+                        setCategoryName("Оправы");
+                    }
+                } else {
+                    setError(`Ошибка загрузки товара: ${err.message}`);
+                }
             } finally {
                 setLoading(false);
             }
@@ -271,7 +493,6 @@ const ProductPage = () => {
         fetchProduct();
     }, [id]);
 
-    // Блокировка скролла страницы при открытом lightbox
     useEffect(() => {
         if (lightboxOpen) {
             document.body.style.overflow = "hidden";
@@ -284,7 +505,6 @@ const ProductPage = () => {
         };
     }, [lightboxOpen]);
 
-    // Клавиатурное управление lightbox
     useEffect(() => {
         if (!lightboxOpen) return;
 
@@ -314,7 +534,6 @@ const ProductPage = () => {
         return () => window.removeEventListener("keydown", handleKey);
     }, [lightboxOpen, product?.images?.length]);
 
-    // Drag в lightbox
     useEffect(() => {
         if (!dragging) return;
 
@@ -368,6 +587,49 @@ const ProductPage = () => {
         setMagnifierPosition({ x, y });
     };
 
+    const handleAuthChange = (e) => {
+        setAuthForm({ ...authForm, [e.target.name]: e.target.value });
+    };
+
+    const handleAuthSubmit = async (e) => {
+        e.preventDefault();
+        setLocalAuthError(null);
+
+        try {
+            if (isLogin) {
+                await login(authForm.email, authForm.password);
+                setAuthSuccess(true);
+                setTimeout(() => {
+                    setShowAuthModal(false);
+                    setAuthSuccess(false);
+                    setAuthForm({ email: "", password: "" });
+                }, 1500);
+            } else {
+                await register(authForm.email, authForm.password);
+                setAuthSuccess(true);
+                setShowLoyaltyCard(true);
+                setTimeout(() => {
+                    setShowAuthModal(false);
+                    setAuthSuccess(false);
+                    setAuthForm({ email: "", password: "" });
+                }, 3000);
+            }
+        } catch (err) {
+            setLocalAuthError(err.message);
+        }
+    };
+
+    const resetAuthForm = () => {
+        setAuthForm({ email: "", password: "" });
+        setLocalAuthError(null);
+        setAuthSuccess(false);
+    };
+
+    const displayAuthError = localAuthError || authError;
+    const cleanAuthError = displayAuthError
+        ? displayAuthError.replace(/<[^>]*>/g, "").trim()
+        : null;
+
     if (loading) {
         return (
             <div className="min-h-screen pt-20 flex items-center justify-center">
@@ -393,10 +655,10 @@ const ProductPage = () => {
                         {error || "Товар не найден"}
                     </p>
                     <Link
-                        to="/auth"
+                        to="/"
                         className="px-6 py-2 bg-[#e31e24] text-white rounded-lg hover:bg-[#c41c20] transition-colors inline-block"
                     >
-                        Вернуться к каталогу
+                        Вернуться на главную
                     </Link>
                 </div>
             </div>
@@ -405,7 +667,8 @@ const ProductPage = () => {
 
     const handleAddToCart = () => {
         if (!user) {
-            navigate("/auth");
+            setShowDiscountModal(false);
+            setShowAuthModal(true);
             return;
         }
         addToCart(product);
@@ -414,7 +677,25 @@ const ProductPage = () => {
     };
 
     const toggleFavorite = () => {
+        if (!user) {
+            setShowDiscountModal(false);
+            setShowAuthModal(true);
+            return;
+        }
         setIsFavorite(!isFavorite);
+    };
+
+    const handleShare = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: product.name,
+                text: `Посмотрите ${product.name} в Эгооптика`,
+                url: window.location.href,
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Ссылка скопирована в буфер обмена!");
+        }
     };
 
     const currentImage =
@@ -423,13 +704,339 @@ const ProductPage = () => {
 
     return (
         <div className="min-h-screen pt-20 bg-white">
+            {/* Discount Modal - показывается только один раз */}
+            {showDiscountModal && !user && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 px-4">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-scale-in">
+                        <h3 className="text-xl font-bold text-[#c41c20] mb-4 text-center">
+                            🎉 Система скидок Эгооптика
+                        </h3>
+
+                        <div className="text-gray-700 text-sm space-y-3">
+                            <div className="bg-pink-50 p-3 rounded-lg">
+                                <p className="font-semibold text-[#c41c20]">
+                                    🎂 День рождения
+                                </p>
+                                <p className="text-lg font-bold">-5%</p>
+                            </div>
+                            <div className="bg-green-50 p-3 rounded-lg">
+                                <p className="font-semibold text-[#c41c20]">
+                                    🎁 При регистрации
+                                </p>
+                                <p className="text-lg font-bold">
+                                    +500 бонусов
+                                </p>
+                            </div>
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                                <p className="font-semibold text-[#c41c20]">
+                                    💳 От 0 до 50 000 ₽
+                                </p>
+                                <p className="text-lg font-bold">-5%</p>
+                            </div>
+                            <div className="bg-purple-50 p-3 rounded-lg">
+                                <p className="font-semibold text-[#c41c20]">
+                                    💳 От 50 000 до 200 000 ₽
+                                </p>
+                                <p className="text-lg font-bold">-10%</p>
+                            </div>
+                            <div className="bg-amber-50 p-3 rounded-lg">
+                                <p className="font-semibold text-[#c41c20]">
+                                    💳 Свыше 200 000 ₽
+                                </p>
+                                <p className="text-lg font-bold">-15%</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 text-center text-sm text-gray-500">
+                            <p>Зарегистрируйтесь, чтобы получать скидки!</p>
+                        </div>
+
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowDiscountModal(false);
+                                    setShowAuthModal(true);
+                                }}
+                                className="flex-1 py-3 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white font-bold rounded-xl hover:scale-[1.02] transition"
+                            >
+                                Войти / Регистрация
+                            </button>
+                            <button
+                                onClick={() => setShowDiscountModal(false)}
+                                className="flex-1 py-3 border-2 border-gray-300 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition"
+                            >
+                                Закрыть
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={() => setShowDiscountModal(false)}
+                            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Auth Modal */}
+            {showAuthModal && !user && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 px-4 overflow-y-auto py-8">
+                    <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative animate-scale-in">
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e31e24] to-transparent"></div>
+                        
+                        <button
+                            onClick={() => {
+                                setShowAuthModal(false);
+                                resetAuthForm();
+                            }}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl z-10"
+                        >
+                            ✕
+                        </button>
+
+                        <div className="flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-2 mb-8 shadow-inner border border-gray-300/50">
+                            <button
+                                onClick={() => {
+                                    setIsLogin(true);
+                                    resetAuthForm();
+                                }}
+                                className={`flex-1 py-4 rounded-xl font-bold transition-all duration-300 relative overflow-hidden group ${
+                                    isLogin
+                                        ? "bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white shadow-lg transform scale-105"
+                                        : "text-gray-600 hover:text-gray-800 bg-transparent"
+                                }`}
+                            >
+                                {isLogin && (
+                                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 rounded-xl"></div>
+                                )}
+                                <span className="relative z-10">
+                                    Войти
+                                </span>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    setIsLogin(false);
+                                    resetAuthForm();
+                                }}
+                                className={`flex-1 py-4 rounded-xl font-bold transition-all duration-300 relative overflow-hidden group ${
+                                    !isLogin
+                                        ? "bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white shadow-lg transform scale-105"
+                                        : "text-gray-600 hover:text-gray-800 bg-transparent"
+                                }`}
+                            >
+                                {!isLogin && (
+                                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 rounded-xl"></div>
+                                )}
+                                <span className="relative z-10">
+                                    Регистрация
+                                </span>
+                            </button>
+                        </div>
+
+                        {authSuccess ? (
+                            <div className="text-center py-12 animate-scale-in">
+                                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#e31e24] to-[#c41c20] rounded-full text-white mb-6 shadow-2xl">
+                                    <Check size={40} />
+                                </div>
+                                <h3 className="text-2xl font-bold text-[#c41c20] mb-4">
+                                    {isLogin
+                                        ? "Вы вошли!"
+                                        : "Регистрация завершена!"}
+                                </h3>
+                                <p className="text-gray-600 mb-8">
+                                    {isLogin
+                                        ? "Перенаправляем..."
+                                        : "На почту отправлена ссылка для подтверждения."}
+                                </p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleAuthSubmit} className="space-y-6">
+                                {cleanAuthError && (
+                                    <div className="text-red-600 text-center font-medium bg-red-50 p-3 rounded-xl">
+                                        {cleanAuthError}
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                                        Email *
+                                    </label>
+                                    <div className="relative">
+                                        <Mail
+                                            size={20}
+                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                        />
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={authForm.email}
+                                            onChange={handleAuthChange}
+                                            required
+                                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:border-[#e31e24] focus:outline-none focus:ring-2 focus:ring-[#e31e24]/20 transition-all duration-300 bg-white/80"
+                                            placeholder="example@email.com"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                                        Пароль *
+                                    </label>
+                                    <div className="relative">
+                                        <Lock
+                                            size={20}
+                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                        />
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            value={authForm.password}
+                                            onChange={handleAuthChange}
+                                            required
+                                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:border-[#e31e24] focus:outline-none focus:ring-2 focus:ring-[#e31e24]/20 transition-all duration-300 bg-white/80"
+                                            placeholder="••••••••"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={authLoading}
+                                    className={`w-full py-4 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white font-bold rounded-xl transition-all duration-300 relative overflow-hidden group hover:scale-[1.02] ${
+                                        authLoading
+                                            ? "opacity-60 cursor-not-allowed"
+                                            : ""
+                                    }`}
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 group-hover:to-white/30 rounded-xl transition-all duration-300"></div>
+                                    <span className="relative z-10">
+                                        {authLoading
+                                            ? "Загрузка..."
+                                            : isLogin
+                                              ? "Войти"
+                                              : "Зарегистрироваться"}
+                                    </span>
+                                </button>
+
+                                {!isLogin && (
+                                    <p className="text-sm text-gray-500 text-center mt-4">
+                                        Регистрируясь, вы получаете скидки и бонусы!
+                                    </p>
+                                )}
+                            </form>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Loyalty Card Modal */}
+            {showLoyaltyCard && (
+                <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/50 px-4 overflow-y-auto py-8">
+                    <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl relative animate-scale-in">
+                        <button
+                            onClick={() => setShowLoyaltyCard(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl z-10"
+                        >
+                            ✕
+                        </button>
+                        
+                        <h2 className="text-3xl font-bold text-center text-[#c41c20] mb-8">
+                            Ваша карта лояльности
+                        </h2>
+                        <div className="relative">
+                            <div
+                                className="bg-gradient-to-br from-[#c41c20] via-[#e31e24] to-[#e31e24]/90 rounded-2xl p-8 text-white relative overflow-hidden"
+                                style={{
+                                    boxShadow:
+                                        "0 15px 35px rgba(227,30,36,0.4), inset 0 2px 8px rgba(255,255,255,0.2)",
+                                }}
+                            >
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+                                <div className="flex justify-between items-start mb-12 relative z-10">
+                                    <div>
+                                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mb-2 shadow-lg">
+                                            <span className="text-[#e31e24] font-bold text-xl">
+                                                Э
+                                            </span>
+                                        </div>
+                                        <p className="text-white font-bold text-lg">
+                                            Эгооптика
+                                        </p>
+                                    </div>
+                                    <CreditCard
+                                        size={36}
+                                        className="text-white/90"
+                                    />
+                                </div>
+                                <div className="space-y-4 relative z-10">
+                                    <div>
+                                        <p className="text-sm text-white/80 mb-1">
+                                            Владелец
+                                        </p>
+                                        <p className="text-lg font-bold">
+                                            {authForm.email.split("@")[0] ||
+                                                "Пользователь"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-white/80 mb-1">
+                                            Номер карты
+                                        </p>
+                                        <p className="text-xl font-mono tracking-wider">
+                                            **** **** ****{" "}
+                                            {Math.floor(Math.random() * 10000)
+                                                .toString()
+                                                .padStart(4, "0")}
+                                        </p>
+                                    </div>
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <p className="text-sm text-white/80 mb-1">
+                                                Бонусы
+                                            </p>
+                                            <p className="text-2xl font-bold text-white">
+                                                500 ₽
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm text-white/80">
+                                                Скидка
+                                            </p>
+                                            <p className="text-xl font-bold text-white">
+                                                5%
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-6 text-center">
+                                <p className="text-gray-600">
+                                    Показывайте эту карту при покупке и получайте бонусы!
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <button
+                            onClick={() => setShowLoyaltyCard(false)}
+                            className="mt-6 w-full py-3 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white font-bold rounded-xl hover:scale-[1.02] transition"
+                        >
+                            Отлично!
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Breadcrumbs */}
             <nav className="bg-white py-4 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto">
                     <ol className="flex items-center space-x-2 text-sm text-gray-500">
                         <li>
-                            <Link 
-                                to="/" 
+                            <Link
+                                to="/"
                                 className="hover:text-[#e31e24] transition-colors duration-200"
                             >
                                 Главная
@@ -437,7 +1044,7 @@ const ProductPage = () => {
                         </li>
                         <li className="flex items-center">
                             <span className="mx-2">/</span>
-                            <Link 
+                            <Link
                                 to={categoryPath}
                                 className="hover:text-[#e31e24] transition-colors duration-200"
                             >
@@ -456,7 +1063,6 @@ const ProductPage = () => {
 
             <section className="py-12">
                 <div className="max-w-7xl mx-auto px-4">
-                    {/* Back Button */}
                     <Link
                         to={categoryPath}
                         className="inline-flex items-center space-x-2 text-[#e31e24] hover:text-[#c41c20] transition-colors duration-300 mb-8 group"
@@ -469,7 +1075,7 @@ const ProductPage = () => {
                     </Link>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        {/* Images */}
+                        {/* Images section */}
                         <div className="space-y-6">
                             <div
                                 ref={imageContainerRef}
@@ -487,7 +1093,6 @@ const ProductPage = () => {
                                     data-testid="product-main-image"
                                 />
 
-                                {/* Кнопка полноэкранного просмотра */}
                                 <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
                                     <button className="bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-colors">
                                         <Maximize2
@@ -497,7 +1102,6 @@ const ProductPage = () => {
                                     </button>
                                 </div>
 
-                                {/* Лупа */}
                                 {showMagnifier && imageContainerRef.current && (
                                     <div
                                         className="pointer-events-none absolute border-4 border-white shadow-2xl rounded-xl overflow-hidden z-50"
@@ -541,7 +1145,6 @@ const ProductPage = () => {
                                 <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                             </div>
 
-                            {/* Миниатюры */}
                             {product.images.length > 1 && (
                                 <div className="grid grid-cols-3 gap-4 mt-6">
                                     {product.images.map((image, index) => (
@@ -601,10 +1204,9 @@ const ProductPage = () => {
                                 ></p>
                             </div>
 
-                            {/* Specifications */}
                             {Object.keys(product.specs).length > 0 && (
                                 <div className="bg-gradient-to-br from-white to-blue-50 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100">
-                                    <h3 className="text-2xl font-bold text-[#c41c20] mb-6 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                                    <h3 className="text-2xl font-bold text-[#c41c20] mb-6">
                                         Характеристики
                                     </h3>
                                     <div className="space-y-4">
@@ -627,7 +1229,6 @@ const ProductPage = () => {
                                 </div>
                             )}
 
-                            {/* Actions */}
                             <div className="space-y-4">
                                 <button
                                     onClick={handleAddToCart}
@@ -636,8 +1237,8 @@ const ProductPage = () => {
                                             ? "bg-green-500 text-white shadow-[0_8px_32px_rgba(34,197,94,0.4)]"
                                             : !user
                                               ? "bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-[0_8px_32px_rgba(75,85,99,0.4)] hover:shadow-[0_12px_40px_rgba(75,85,99,0.5)]"
-                                              : "bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white  "
-                                    } hover:-translate-y-1 hover:scale-105 before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-t before:from-transparent before:to-white before:opacity-0 hover:before:opacity-20`}
+                                              : "bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white hover:-translate-y-1 hover:scale-105"
+                                    }`}
                                     data-testid="add-to-cart-btn"
                                 >
                                     {addedToCart ? (
@@ -694,31 +1295,21 @@ const ProductPage = () => {
                                                 : "В избранное"}
                                         </span>
                                     </button>
-                                    <button className="flex-1 inline-flex items-center justify-center space-x-2 py-4 rounded-2xl font-semibold transition-all duration-300 border-2 border-[#e31e24] text-[#e31e24] hover:bg-blue-600 hover:text-white hover:-translate-y-1 hover:shadow-lg">
+                                    <button
+                                        onClick={handleShare}
+                                        className="flex-1 inline-flex items-center justify-center space-x-2 py-4 rounded-2xl font-semibold transition-all duration-300 border-2 border-[#e31e24] text-[#e31e24] hover:bg-[#e31e24] hover:text-white hover:-translate-y-1 hover:shadow-lg"
+                                    >
                                         <Share2 size={20} />
                                         <span>Поделиться</span>
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Additional Info */}
                             <div className="bg-gradient-to-br from-white to-blue-50 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100">
-                                <h4 className="text-xl font-bold text-[#c41c20] mb-6 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                                <h4 className="text-xl font-bold text-[#c41c20] mb-6">
                                     Преимущества
                                 </h4>
                                 <ul className="space-y-4">
-                                    {/* <li className="flex items-start space-x-4 group">
-                                        <div className="w-8 h-8 bg-gradient-to-br from-[#e31e24] to-[#c41c20] rounded-full flex items-center justify-center flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
-                                            <Truck
-                                                size={16}
-                                                className="text-white"
-                                            />
-                                        </div>
-                                        <span className="text-gray-700 group-hover:text-gray-900 transition-colors duration-300 pt-1">
-                                            Бесплатная доставка при заказе от 25
-                                            000 ₽
-                                        </span>
-                                    </li> */}
                                     <li className="flex items-start space-x-4 group">
                                         <div className="w-8 h-8 bg-gradient-to-br from-[#e31e24] to-[#c41c20] rounded-full flex items-center justify-center flex-shrink-0 transform group-hover:scale-110 transition-transform duration-300">
                                             <Check

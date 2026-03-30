@@ -737,103 +737,149 @@ const ColorFilter = React.memo(({ option, checked, onChange }) => (
     </label>
 ));
 
-const PriceSliderSection = React.memo(
-    ({ priceRange, minPrice, maxPrice, onMinChange, onMaxChange }) => {
-        const [isDragging, setIsDragging] = useState(null);
-        const sliderRef = useRef(null);
+    const PriceSliderSection = React.memo(
+        ({ priceRange, minPrice, maxPrice, onMinChange, onMaxChange }) => {
+            const [isDragging, setIsDragging] = useState(null);
+            const sliderRef = useRef(null);
 
-        const handleMouseMove = useCallback(
-            (e) => {
-                if (!isDragging || !sliderRef.current) return;
-                const rect = sliderRef.current.getBoundingClientRect();
-                const offsetX = Math.min(
-                    Math.max(e.clientX - rect.left, 0),
-                    rect.width,
-                );
-                const percentage = offsetX / rect.width;
-                const newPrice = Math.round(
-                    minPrice + percentage * (maxPrice - minPrice),
-                );
-                if (isDragging === "min" && newPrice <= priceRange.max) {
-                    onMinChange({ target: { value: newPrice.toString() } });
-                } else if (isDragging === "max" && newPrice >= priceRange.min) {
-                    onMaxChange({ target: { value: newPrice.toString() } });
-                }
-            },
-            [
-                isDragging,
+            // Актуальные значения для document listeners (чтобы не было stale closure)
+            const latestRef = useRef({
+                priceRange,
                 minPrice,
                 maxPrice,
-                priceRange,
                 onMinChange,
                 onMaxChange,
-            ],
-        );
+            });
 
-        const handleMouseUp = useCallback(() => {
-            setIsDragging(null);
-            document.removeEventListener("mousemove", handleMouseMove);
-            document.removeEventListener("mouseup", handleMouseUp);
-        }, [handleMouseMove]);
+            useEffect(() => {
+                latestRef.current = {
+                    priceRange,
+                    minPrice,
+                    maxPrice,
+                    onMinChange,
+                    onMaxChange,
+                };
+            }, [priceRange, minPrice, maxPrice, onMinChange, onMaxChange]);
 
-        const handleMouseDown = useCallback(
-            (e, type) => {
-                e.preventDefault();
-                setIsDragging(type);
-                document.addEventListener("mousemove", handleMouseMove);
-                document.addEventListener("mouseup", handleMouseUp);
-            },
-            [handleMouseMove],
-        );
+            const handleMouseMove = useCallback((e) => {
+                const { priceRange: currRange, minPrice: minP, maxPrice: maxP, onMinChange: updateMin, onMaxChange: updateMax } =
+                    latestRef.current;
 
-        const minPercent =
-            minPrice < maxPrice
-                ? ((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100
-                : 0;
-        const maxPercent =
-            minPrice < maxPrice
-                ? ((priceRange.max - minPrice) / (maxPrice - minPrice)) * 100
-                : 100;
+                if (!isDragging || !sliderRef.current) return;
 
-        return (
-            <div>
-                <h4 className="font-semibold text-[#c8102e] mb-3 flex items-center space-x-2">
-                    <DollarSign size={18} className="text-[#c8102e]" />
-                    <span>Цена, ₽</span>
-                </h4>
-                <div className="space-y-4">
-                    <div className="flex justify-between text-sm text-gray-600">
-                        <span>от {priceRange.min.toLocaleString("ru-RU")}</span>
-                        <span>до {priceRange.max.toLocaleString("ru-RU")}</span>
-                    </div>
-                    <div
-                        ref={sliderRef}
-                        className="relative h-10 cursor-pointer"
-                    >
-                        <div className="absolute top-1/2 left-0 right-0 h-1.5 bg-gray-200 rounded-full -translate-y-1/2" />
+                const rect = sliderRef.current.getBoundingClientRect();
+                let offsetX = e.clientX - rect.left;
+                offsetX = Math.max(0, Math.min(offsetX, rect.width));
+
+                const percentage = offsetX / rect.width;
+                const newPrice = Math.round(minP + percentage * (maxP - minP));
+
+                if (isDragging === "min" && newPrice <= currRange.max) {
+                    updateMin({ target: { value: newPrice.toString() } });
+                } else if (isDragging === "max" && newPrice >= currRange.min) {
+                    updateMax({ target: { value: newPrice.toString() } });
+                }
+            }, [isDragging]);
+
+            const handleMouseUp = useCallback(() => {
+                setIsDragging(null);
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+            }, [handleMouseMove]);
+
+            const handleMouseDown = useCallback(
+                (e, type) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDragging(type);
+                    document.addEventListener("mousemove", handleMouseMove);
+                    document.addEventListener("mouseup", handleMouseUp);
+                },
+                [handleMouseMove, handleMouseUp]
+            );
+
+            // Клик по треку — сразу перемещает ближайшую ручку
+            const handleTrackClick = useCallback(
+                (e) => {
+                    if (!sliderRef.current || isDragging) return;
+
+                    const rect = sliderRef.current.getBoundingClientRect();
+                    let offsetX = e.clientX - rect.left;
+                    offsetX = Math.max(0, Math.min(offsetX, rect.width));
+
+                    const percentage = offsetX / rect.width;
+                    const clickPrice = Math.round(
+                        (minPrice || 0) + percentage * ((maxPrice || 70000) - (minPrice || 0))
+                    );
+
+                    const curr = latestRef.current.priceRange;
+                    const distMin = Math.abs(clickPrice - curr.min);
+                    const distMax = Math.abs(clickPrice - curr.max);
+
+                    if (distMin <= distMax) {
+                        latestRef.current.onMinChange({ target: { value: clickPrice.toString() } });
+                    } else {
+                        latestRef.current.onMaxChange({ target: { value: clickPrice.toString() } });
+                    }
+                },
+                [minPrice, maxPrice, isDragging]
+            );
+
+            if (minPrice === undefined || maxPrice === undefined || minPrice >= maxPrice) {
+                return null;
+            }
+
+            const minPercent = ((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100;
+            const maxPercent = ((priceRange.max - minPrice) / (maxPrice - minPrice)) * 100;
+
+            return (
+                <div>
+                    <h4 className="font-semibold text-[#c8102e] mb-3 flex items-center space-x-2">
+                        <DollarSign size={18} className="text-[#c8102e]" />
+                        <span>Цена, ₽</span>
+                    </h4>
+                    <div className="space-y-4">
+                        <div className="flex justify-between text-sm text-gray-600">
+                            <span>от {priceRange.min.toLocaleString("ru-RU")}</span>
+                            <span>до {priceRange.max.toLocaleString("ru-RU")}</span>
+                        </div>
+
                         <div
-                            className="absolute top-1/2 h-1.5 bg-gradient-to-r from-[#c8102e] to-[#a50d24] rounded-full -translate-y-1/2"
-                            style={{
-                                left: `${minPercent}%`,
-                                width: `${maxPercent - minPercent}%`,
-                            }}
-                        />
-                        <div
-                            className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-pointer hover:scale-110 transition-transform z-20"
-                            style={{ left: `${minPercent}%` }}
-                            onMouseDown={(e) => handleMouseDown(e, "min")}
-                        />
-                        <div
-                            className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-pointer hover:scale-110 transition-transform z-20"
-                            style={{ left: `${maxPercent}%` }}
-                            onMouseDown={(e) => handleMouseDown(e, "max")}
-                        />
+                            ref={sliderRef}
+                            className="relative h-10 bg-transparent cursor-pointer select-none"
+                            onClick={handleTrackClick}
+                        >
+                            {/* Фон */}
+                            <div className="absolute top-1/2 left-0 right-0 h-1.5 bg-gray-200 rounded-full -translate-y-1/2" />
+
+                            {/* Активный диапазон */}
+                            <div
+                                className="absolute top-1/2 h-1.5 bg-gradient-to-r from-[#c8102e] to-[#a50d24] rounded-full -translate-y-1/2"
+                                style={{
+                                    left: `${Math.max(0, minPercent)}%`,
+                                    width: `${Math.max(0, maxPercent - minPercent)}%`,
+                                }}
+                            />
+
+                            {/* Ручка MIN */}
+                            <div
+                                className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing z-20 hover:scale-110 transition-transform"
+                                style={{ left: `${minPercent}%` }}
+                                onMouseDown={(e) => handleMouseDown(e, "min")}
+                            />
+
+                            {/* Ручка MAX */}
+                            <div
+                                className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing z-20 hover:scale-110 transition-transform"
+                                style={{ left: `${maxPercent}%` }}
+                                onMouseDown={(e) => handleMouseDown(e, "max")}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
-        );
-    },
-);
+            );
+        }
+    );
 
 const ProductCard = React.memo(({ product, viewMode }) => (
     <Link

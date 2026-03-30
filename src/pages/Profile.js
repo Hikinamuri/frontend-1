@@ -21,70 +21,49 @@ const Profile = () => {
     const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
     const [errorOrders, setErrorOrders] = useState(null);
-    const [debugInfo, setDebugInfo] = useState("");
     const [profileData, setProfileData] = useState(null);
 
-    const fetchProfile = async () => {
+    const fetchProfile = async (requestBody) => {
         const res = await fetch(`${API}/wp-json/custom/v1/user-profile`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: user.email }),
+            body: JSON.stringify(requestBody),
         });
         const data = await res.json();
-        console.log("data", data);
         setProfileData(data);
     };
 
-    // Получаем логин пользователя
     const getUserLogin = () => {
-        if (!user) {
-            console.log("User is null");
-            return "";
-        }
+        if (!user) return "";
 
-        console.log("User object:", user);
-
-        // Пробуем получить email
         if (user.email) {
-            console.log("User email:", user.email);
             return user.email.split("@")[0];
         }
 
-        // Пробуем другие поля
         if (user.user_email) {
-            console.log("User user_email:", user.user_email);
             return user.user_email.split("@")[0];
         }
 
         if (user.name) {
-            console.log("User name:", user.name);
             return user.name;
         }
 
         if (user.display_name) {
-            console.log("User display_name:", user.display_name);
             return user.display_name;
         }
 
-        console.log("No user data found");
         return "";
     };
 
-    // Redirect if not logged in
     useEffect(() => {
         if (!user) {
-            console.log("No user, redirecting to auth");
             navigate("/auth");
         }
     }, [user, navigate]);
 
-    // Получаем заказы по user_login
     useEffect(() => {
         const fetchOrders = async () => {
-            console.log("FetchOrders triggered, user:", user);
-
             if (!user) {
-                setDebugInfo("Нет пользователя");
                 setLoadingOrders(false);
                 return;
             }
@@ -92,12 +71,10 @@ const Profile = () => {
             const userLogin = getUserLogin();
 
             if (!userLogin) {
-                setDebugInfo("Не удалось получить логин пользователя");
                 setLoadingOrders(false);
                 return;
             }
 
-            setDebugInfo(`Загружаем заказы для user_login: ${userLogin}`);
             setLoadingOrders(true);
             setErrorOrders(null);
 
@@ -107,8 +84,6 @@ const Profile = () => {
                     email: user.email || "",
                 };
 
-                console.log("Отправляем запрос:", requestBody);
-
                 const response = await fetch(
                     `${API}/wp-json/custom/v1/user-orders`,
                     {
@@ -117,52 +92,28 @@ const Profile = () => {
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify(requestBody),
-                    },
+                    }
                 );
 
-                // fetchProfile();
-
-                const res = await fetch(
-                    `${API}/wp-json/custom/v1/user-profile`,
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(requestBody),
-                    },
-                );
-
-                const data1 = await res.json();
-                console.log("data", data1);
-                setProfileData(data1);
-
-                console.log("Статус ответа:", response.status);
-                setDebugInfo(`Статус ответа: ${response.status}`);
+                await fetchProfile(requestBody);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log("Полученные данные:", data);
 
                 if (data.error) {
                     throw new Error(data.error);
                 }
 
-                // Фильтруем заказы - оставляем только те, где user_login совпадает
                 const filteredOrders = data.filter(
-                    (order) => order.user_login === userLogin,
+                    (order) => order.user_login === userLogin
                 );
 
-                console.log("Отфильтрованные заказы:", filteredOrders);
-                setDebugInfo(
-                    `Получено всего: ${data.length}, отфильтровано: ${filteredOrders.length}`,
-                );
                 setOrders(filteredOrders || []);
             } catch (err) {
-                console.error("Ошибка загрузки заказов:", err);
                 setErrorOrders(err.message || "Не удалось загрузить заказы");
-                setDebugInfo(`Ошибка: ${err.message}`);
             } finally {
                 setLoadingOrders(false);
             }
@@ -239,26 +190,6 @@ const Profile = () => {
 
             <section className="py-12">
                 <div className="max-w-4xl mx-auto px-4 space-y-8">
-                    {/* Отладка */}
-                    {process.env.NODE_ENV === "development" && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm">
-                            <p className="font-bold">Отладка:</p>
-                            <p>User Login: {userLogin || "не определен"}</p>
-                            <p>Email: {userEmail || "не указан"}</p>
-                            <p>Статус: {debugInfo}</p>
-                            <p>Найдено заказов: {orders.length}</p>
-                            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-40">
-                                {JSON.stringify(user, null, 2)}
-                            </pre>
-                            <button
-                                onClick={() => window.location.reload()}
-                                className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-lg text-xs"
-                            >
-                                Обновить страницу
-                            </button>
-                        </div>
-                    )}
-
                     {/* Карта лояльности */}
                     <div className="bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-8 border border-gray-100">
                         <h2 className="text-3xl font-bold text-[#c41c20] mb-6 text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] flex items-center justify-center">
@@ -470,14 +401,6 @@ const Profile = () => {
                                                     {order.id_formatted ||
                                                         `#${order.id}`}
                                                 </p>
-                                                {process.env.NODE_ENV ===
-                                                    "development" &&
-                                                    order.user_login && (
-                                                        <span className="text-xs text-gray-400">
-                                                            (user_login:{" "}
-                                                            {order.user_login})
-                                                        </span>
-                                                    )}
                                             </div>
                                             <p className="text-sm text-gray-600">
                                                 {order.date}
@@ -537,7 +460,6 @@ const Profile = () => {
     );
 };
 
-// Вспомогательная функция для склонения слова "товар"
 function getItemsText(count) {
     if (count % 10 === 1 && count % 100 !== 11) return "товар";
     if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100))
