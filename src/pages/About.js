@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import First from "@/assets/about/first.png";
 import Second from "@/assets/about/second.jpg";
+import { Link } from "react-router-dom";
 
 const About = () => {
     const values = [
@@ -68,11 +69,31 @@ const About = () => {
 
     return (
         <div className="min-h-screen pt-20">
+            {/* Breadcrumbs */}
+            <nav className="bg-white py-4 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+                <div className="max-w-7xl mx-auto">
+                    <ol className="flex items-center space-x-2 text-sm text-gray-500">
+                        <li>
+                            <Link 
+                                to="/" 
+                                className="hover:text-[#c41c20] transition-colors duration-200"
+                            >
+                                Главная
+                            </Link>
+                        </li>
+                        <li className="flex items-center">
+                            <span className="mx-2">/</span>
+                            <span className="text-gray-900 font-medium">О нас</span>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
             {/* Hero Section */}
-            <section className="py-20 bg-gradient-to-br from-[#740000] via-[#9c0101] to-blue-900 text-white relative overflow-hidden">
+            <section className="py-20 bg-gradient-to-br from-[#c41c20] via-[#e31e24] to-[#e31e24]/80 text-white relative overflow-hidden">
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.3)_2px,transparent_0)] bg-[length:60px_60px]" />
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-3xl" />
-                <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-[#9c0101] rounded-full opacity-10 blur-3xl" />
+                <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-[#e31e24] rounded-full opacity-10 blur-3xl" />
 
                 <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
                     <h1
@@ -91,13 +112,13 @@ const About = () => {
 
             {/* Main Story Section */}
             <section className="py-20 bg-white relative overflow-hidden">
-                <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-br from-[#9c0101]/10 to-blue-600/10 rounded-full blur-2xl" />
-                <div className="absolute bottom-10 left-10 w-24 h-24 bg-[#740000]/10 rounded-full blur-xl" />
+                <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-br from-[#e31e24]/10 to-blue-600/10 rounded-full blur-2xl" />
+                <div className="absolute bottom-10 left-10 w-24 h-24 bg-[#c41c20]/10 rounded-full blur-xl" />
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div className="space-y-8">
-                            <h2 className="text-4xl md:text-5xl font-bold text-[#740000] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                            <h2 className="text-4xl md:text-5xl font-bold text-[#c41c20] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                                 Эстетика — Гармония — Оригинальность
                             </h2>
                             <div className="space-y-6">
@@ -136,8 +157,8 @@ const About = () => {
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
                             </div>
 
-                            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-blue-600 to-[#9c0101] rounded-2xl opacity-20 blur-xl transform rotate-12 group-hover:rotate-45 transition-transform duration-500" />
-                            <div className="absolute -top-4 -left-4 w-16 h-16 bg-[#740000] rounded-full opacity-15 blur-lg transform -rotate-12 group-hover:-rotate-45 transition-transform duration-500" />
+                            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-blue-600 to-[#e31e24] rounded-2xl opacity-20 blur-xl transform rotate-12 group-hover:rotate-45 transition-transform duration-500" />
+                            <div className="absolute -top-4 -left-4 w-16 h-16 bg-[#c41c20] rounded-full opacity-15 blur-lg transform -rotate-12 group-hover:-rotate-45 transition-transform duration-500" />
                         </div>
                     </div>
                 </div>
@@ -146,7 +167,7 @@ const About = () => {
             {/* Quality Section */}
             <section className="py-20 bg-gradient-to-br from-white to-blue-50 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white to-transparent" />
-                <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#9c0101]/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#e31e24]/5 rounded-full blur-3xl" />
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -162,7 +183,7 @@ const About = () => {
                         </div>
 
                         <div className="space-y-8 order-1 lg:order-2">
-                            <h2 className="text-4xl md:text-5xl font-bold text-[#740000] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                            <h2 className="text-4xl md:text-5xl font-bold text-[#c41c20] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                                 Качество и доверие
                             </h2>
                             <div className="space-y-6">
@@ -203,11 +224,11 @@ const About = () => {
 
             {/* EGO Features */}
             <section className="py-20 bg-white relative overflow-hidden">
-                <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-blue-600/10 to-[#9c0101]/10 rounded-full blur-2xl" />
-                <div className="absolute bottom-10 right-10 w-24 h-24 bg-[#740000]/10 rounded-full blur-xl" />
+                <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-blue-600/10 to-[#e31e24]/10 rounded-full blur-2xl" />
+                <div className="absolute bottom-10 right-10 w-24 h-24 bg-[#c41c20]/10 rounded-full blur-xl" />
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10">
-                    <h2 className="text-4xl md:text-5xl font-bold text-center text-[#740000] mb-16 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                    <h2 className="text-4xl md:text-5xl font-bold text-center text-[#c41c20] mb-16 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                         Наши принципы
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -216,10 +237,10 @@ const About = () => {
                                 key={index}
                                 className="bg-white rounded-3xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25),0_0_0_1px_rgba(255,255,255,0.1)] transition-all duration-500 hover:-translate-y-3 text-center border border-gray-100 group"
                             >
-                                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#9c0101] to-[#740000] rounded-2xl text-white mb-6 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-[0_4px_14px_0_rgba(156,1,1,0.3)]">
+                                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#e31e24] to-[#c41c20] rounded-2xl text-white mb-6 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-[0_4px_14px_0_rgba(227,30,36,0.3)]">
                                     {feature.icon}
                                 </div>
-                                <h3 className="text-xl font-bold text-[#740000] mb-4 group-hover:text-[#9c0101] transition-colors duration-300">
+                                <h3 className="text-xl font-bold text-[#c41c20] mb-4 group-hover:text-[#e31e24] transition-colors duration-300">
                                     {feature.title}
                                 </h3>
                                 <p className="text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors duration-300">
@@ -234,10 +255,10 @@ const About = () => {
             {/* Values Section */}
             <section className="py-20 bg-gradient-to-br from-white to-blue-50 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white to-transparent" />
-                <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#9c0101]/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#e31e24]/5 rounded-full blur-3xl" />
 
                 <div className="max-w-7xl mx-auto px-4 relative z-10">
-                    <h2 className="text-4xl md:text-5xl font-bold text-center text-[#740000] mb-16 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                    <h2 className="text-4xl md:text-5xl font-bold text-center text-[#c41c20] mb-16 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                         Наши ценности
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -247,10 +268,10 @@ const About = () => {
                                 className="bg-white rounded-3xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25),0_0_0_1px_rgba(255,255,255,0.1)] transition-all duration-500 hover:-translate-y-3 text-center border border-gray-100 group"
                                 data-testid={`value-card-${index}`}
                             >
-                                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#9c0101] to-[#740000] rounded-2xl text-white mb-6 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-[0_4px_14px_0_rgba(156,1,1,0.3)]">
+                                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#e31e24] to-[#c41c20] rounded-2xl text-white mb-6 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-[0_4px_14px_0_rgba(227,30,36,0.3)]">
                                     {value.icon}
                                 </div>
-                                <h3 className="text-xl font-bold text-[#740000] mb-4 group-hover:text-[#9c0101] transition-colors duration-300">
+                                <h3 className="text-xl font-bold text-[#c41c20] mb-4 group-hover:text-[#e31e24] transition-colors duration-300">
                                     {value.title}
                                 </h3>
                                 <p className="text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors duration-300">
@@ -263,7 +284,7 @@ const About = () => {
             </section>
 
             {/* Statistics Section */}
-            <section className="py-20 bg-gradient-to-br from-[#740000] via-[#9c0101] to-blue-900 text-white relative overflow-hidden">
+            <section className="py-20 bg-gradient-to-br from-[#c41c20] via-[#e31e24] to-[#e31e24]/80 text-white relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white rounded-full animate-pulse" />
                     <div className="absolute bottom-1/3 right-1/3 w-24 h-24 bg-blue-400 rounded-full animate-pulse delay-1000" />

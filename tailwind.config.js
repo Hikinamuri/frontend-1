@@ -139,7 +139,16 @@ module.exports = {
                                         opacity: '1',
                                         transform: 'scale(1)'
                                 }
-                        }
+                        },
+
+                        'infinite-scroll': {
+                                        '0%': {
+                                                transform: 'translateX(0)'
+                                                },
+                                        '100%': {
+                                                transform: 'translateX(-50%)'
+                                                },
+                        },
                 },
                 animation: {
                         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -148,7 +157,8 @@ module.exports = {
                         'fade-in': 'fade-in 1s ease-out',
                         'slide-in-left': 'slide-in-left 0.8s ease-out',
                         'slide-in-right': 'slide-in-right 0.8s ease-out',
-                        'scale-in': 'scale-in 0.6s ease-out'
+                        'scale-in': 'scale-in 0.6s ease-out',
+                        'infinite-scroll': 'infinite-scroll 120s linear infinite !important',
                 }
         }
   },

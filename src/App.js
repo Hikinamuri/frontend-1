@@ -16,34 +16,63 @@ import ProductPage from "@/pages/ProductPage";
 import CartPage from "@/pages/CartPage";
 import Profile from "@/pages/Profile";
 import CheckoutPage from "@/pages/CheckoutPage";
+import ShippingPage from "@/pages/ShippingPage";
+import PaymentPage from "@/pages/PaymentPage";
+import WarrantyPage from "@/pages/WarrantyPage";
+import ChildGlasses from '@/pages/ChildGlasses';
 
 function App() {
-  return (
-    <div className="App">
-      <AuthProvider>
-        <CartProvider>
-          <BrowserRouter>
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/delivery" element={<Delivery />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/how-to-order" element={<HowToOrder />} />
-              <Route path="/frames" element={<Frames />} />
-              <Route path="/sunglasses" element={<Sunglasses />} />
-              <Route path="/product/:id" element={<ProductPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-            </Routes>
-            <Footer />
-          </BrowserRouter>
-        </CartProvider>
-      </AuthProvider>
-    </div>
-  );
+    return (
+        <div className="App">
+            <AuthProvider>
+                <CartProvider>
+                    <BrowserRouter>
+                        <Navbar />
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/delivery" element={<Delivery />} />
+                            <Route path="/contacts" element={<Contacts />} />
+                            <Route path="/auth" element={<Auth />} />
+                            <Route
+                                path="/how-to-order"
+                                element={<HowToOrder />}
+                            />
+                            <Route path="/frames" element={<Frames />} />
+                            <Route path="/child-glasses" element={<ChildGlasses />} />
+                            <Route
+                                path="/sunglasses"
+                                element={<Sunglasses />}
+                            />
+                            <Route
+                                path="/product/:id"
+                                element={<ProductPage />}
+                            />
+                            <Route path="/cart" element={<CartPage />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route
+                                path="/checkout"
+                                element={<CheckoutPage />}
+                            />
+                            <Route
+                                path="/delivery/shipping"
+                                element={<ShippingPage />}
+                            />
+                            <Route
+                                path="/delivery/payment"
+                                element={<PaymentPage />}
+                            />
+                            <Route
+                                path="/delivery/warranty"
+                                element={<WarrantyPage />}
+                            />
+                        </Routes>
+                        <Footer />
+                    </BrowserRouter>
+                </CartProvider>
+            </AuthProvider>
+        </div>
+    );
 }
 
 export default App;

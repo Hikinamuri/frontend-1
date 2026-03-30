@@ -88,18 +88,6 @@ const Footer = () => {
                                 />
                                 <div>
                                     <a
-                                        href="tel:+78432324567"
-                                        className="text-gray-300 hover:text-gold transition-colors duration-300 block"
-                                    >
-                                        +7 (843) 232-45-67
-                                    </a>
-                                    <a
-                                        href="tel:+78437654321"
-                                        className="text-gray-300 hover:text-gold transition-colors duration-300 block"
-                                    >
-                                        +7 (843) 765-43-21
-                                    </a>
-                                    <a
                                         href="tel:+78437654321"
                                         className="text-gray-300 hover:text-gold transition-colors duration-300 block"
                                     >
@@ -113,10 +101,10 @@ const Footer = () => {
                                     className="text-gold mt-1 flex-shrink-0"
                                 />
                                 <a
-                                    href="mailto:info@egooptica.ru"
+                                    href="mailto:egooptika@yandex.ru"
                                     className="text-gray-300 hover:text-gold transition-colors duration-300"
                                 >
-                                    info@egooptica.ru
+                                    egooptika@yandex.ru
                                 </a>
                             </li>
                             <li className="flex items-start space-x-3">
