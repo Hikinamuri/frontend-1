@@ -285,7 +285,7 @@ const Contacts = () => {
                                         <MessageCircle size={20} />
                                         <span>+7 (939) 809-52-80</span>
                                         <span className="text-sm bg-white/20 px-2 py-1 rounded-full">
-                                            MAX Telegram
+                                            Мессенджеры
                                         </span>
                                     </a>
                                 </div>
