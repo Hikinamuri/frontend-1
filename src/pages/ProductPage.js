@@ -1371,7 +1371,7 @@ const ProductPage = () => {
                             <img
                                 src={product.images[lightboxIndex]}
                                 alt={product.name}
-                                className="max-w-none"
+                                className="max-w-[90vw] max-h-[90vh] object-contain"
                                 style={{
                                     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                                     transition: dragging

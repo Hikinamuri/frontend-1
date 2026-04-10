@@ -279,11 +279,11 @@ const Contacts = () => {
                                         </h3>
                                     </div>
                                     <a
-                                        href="https://wa.me/79398074779"
+                                        href="https://wa.me/79398095280"
                                         className="flex items-center space-x-2 text-white/90 hover:text-white transition-colors duration-300"
                                     >
                                         <MessageCircle size={20} />
-                                        <span>+7 (939) 807-47-79</span>
+                                        <span>+7 (939) 809-52-80</span>
                                         <span className="text-sm bg-white/20 px-2 py-1 rounded-full">
                                             MAX Telegram
                                         </span>

@@ -22,7 +22,7 @@ const PaymentPage = () => {
                     {/* Основная информация */}
                     <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 space-y-6">
                         <p className="text-gray-700 text-lg">
-                            Оплатить товар можно банковской картой на сайте или
+                            Оплатить товар можно через менеджера после подтверждения заказа или
                             при получении в пункте СДЭК.
                         </p>
 
