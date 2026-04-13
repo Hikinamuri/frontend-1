@@ -36,6 +36,12 @@ const Sunglasses = () => {
         child: [],
     });
 
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+        });
+    }, [currentPage]);
+
     // Локальное состояние для слайдера
     const [priceRange, setPriceRange] = useState({ min: 0, max: 70000 });
 
@@ -177,8 +183,8 @@ const Sunglasses = () => {
                 <div className="max-w-7xl mx-auto">
                     <ol className="flex items-center space-x-2 text-sm text-gray-500">
                         <li>
-                            <Link 
-                                to="/" 
+                            <Link
+                                to="/"
                                 className="hover:text-[#c41c20] transition-colors duration-200"
                             >
                                 Главная
@@ -186,7 +192,9 @@ const Sunglasses = () => {
                         </li>
                         <li className="flex items-center">
                             <span className="mx-2">/</span>
-                            <span className="text-gray-900 font-medium">Солнцезащитные очки</span>
+                            <span className="text-gray-900 font-medium">
+                                Солнцезащитные очки
+                            </span>
                         </li>
                     </ol>
                 </div>
@@ -625,25 +633,33 @@ const PriceSliderSection = React.memo(
             };
         }, [priceRange, minPrice, maxPrice, onMinChange, onMaxChange]);
 
-        const handleMouseMove = useCallback((e) => {
-            const { priceRange: currRange, minPrice: minP, maxPrice: maxP, onMinChange: updateMin, onMaxChange: updateMax } =
-                latestRef.current;
+        const handleMouseMove = useCallback(
+            (e) => {
+                const {
+                    priceRange: currRange,
+                    minPrice: minP,
+                    maxPrice: maxP,
+                    onMinChange: updateMin,
+                    onMaxChange: updateMax,
+                } = latestRef.current;
 
-            if (!isDragging || !sliderRef.current) return;
+                if (!isDragging || !sliderRef.current) return;
 
-            const rect = sliderRef.current.getBoundingClientRect();
-            let offsetX = e.clientX - rect.left;
-            offsetX = Math.max(0, Math.min(offsetX, rect.width));
+                const rect = sliderRef.current.getBoundingClientRect();
+                let offsetX = e.clientX - rect.left;
+                offsetX = Math.max(0, Math.min(offsetX, rect.width));
 
-            const percentage = offsetX / rect.width;
-            const newPrice = Math.round(minP + percentage * (maxP - minP));
+                const percentage = offsetX / rect.width;
+                const newPrice = Math.round(minP + percentage * (maxP - minP));
 
-            if (isDragging === "min" && newPrice <= currRange.max) {
-                updateMin({ target: { value: newPrice.toString() } });
-            } else if (isDragging === "max" && newPrice >= currRange.min) {
-                updateMax({ target: { value: newPrice.toString() } });
-            }
-        }, [isDragging]);
+                if (isDragging === "min" && newPrice <= currRange.max) {
+                    updateMin({ target: { value: newPrice.toString() } });
+                } else if (isDragging === "max" && newPrice >= currRange.min) {
+                    updateMax({ target: { value: newPrice.toString() } });
+                }
+            },
+            [isDragging],
+        );
 
         const handleMouseUp = useCallback(() => {
             setIsDragging(null);
@@ -659,7 +675,7 @@ const PriceSliderSection = React.memo(
                 document.addEventListener("mousemove", handleMouseMove);
                 document.addEventListener("mouseup", handleMouseUp);
             },
-            [handleMouseMove, handleMouseUp]
+            [handleMouseMove, handleMouseUp],
         );
 
         // Клик по треку — перемещает ближайшую ручку (очень удобно)
@@ -673,7 +689,8 @@ const PriceSliderSection = React.memo(
 
                 const percentage = offsetX / rect.width;
                 const clickPrice = Math.round(
-                    (minPrice || 0) + percentage * ((maxPrice || 70000) - (minPrice || 0))
+                    (minPrice || 0) +
+                        percentage * ((maxPrice || 70000) - (minPrice || 0)),
                 );
 
                 const curr = latestRef.current.priceRange;
@@ -681,18 +698,24 @@ const PriceSliderSection = React.memo(
                 const distMax = Math.abs(clickPrice - curr.max);
 
                 if (distMin <= distMax) {
-                    latestRef.current.onMinChange({ target: { value: clickPrice.toString() } });
+                    latestRef.current.onMinChange({
+                        target: { value: clickPrice.toString() },
+                    });
                 } else {
-                    latestRef.current.onMaxChange({ target: { value: clickPrice.toString() } });
+                    latestRef.current.onMaxChange({
+                        target: { value: clickPrice.toString() },
+                    });
                 }
             },
-            [minPrice, maxPrice, isDragging]
+            [minPrice, maxPrice, isDragging],
         );
 
         if (minPrice === undefined || maxPrice === undefined) return null;
 
-        const minPercent = ((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100;
-        const maxPercent = ((priceRange.max - minPrice) / (maxPrice - minPrice)) * 100;
+        const minPercent =
+            ((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100;
+        const maxPercent =
+            ((priceRange.max - minPrice) / (maxPrice - minPrice)) * 100;
 
         return (
             <div>
@@ -741,7 +764,7 @@ const PriceSliderSection = React.memo(
                 </div>
             </div>
         );
-    }
+    },
 );
 
 const ProductCard = React.memo(({ product, viewMode }) => (
@@ -756,7 +779,7 @@ const ProductCard = React.memo(({ product, viewMode }) => (
                 viewMode === "list"
                     ? "w-48 h-48 flex-shrink-0"
                     : "aspect-square"
-            } bg-gray-50 p-6`}
+            } bg-white p-6`}
         >
             <img
                 src={product.image}

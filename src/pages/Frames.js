@@ -126,6 +126,13 @@ const Frames = () => {
         setCurrentPage(1);
     }, [minPrice, maxPrice]);
 
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+           
+        });
+    }, [currentPage]);
+
     const selectedBrand = useMemo(() => {
         if (filters.brand.length !== 1) return null;
         return brandOptions.find((opt) => opt.value === filters.brand[0]);

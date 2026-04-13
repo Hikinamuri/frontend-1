@@ -768,7 +768,8 @@ const ProductPage = () => {
                         </div>
 
                         <div className="mt-6 text-center text-sm text-gray-500">
-                            <p>Зарегистрируйтесь, чтобы получать скидки!</p>
+                            {/* <p>Зарегистрируйтесь, чтобы получать скидки!</p> */}
+                            <p>*не распространяется на очковые линзы</p>
                         </div>
 
                         <div className="mt-6 flex gap-3">

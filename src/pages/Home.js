@@ -242,14 +242,14 @@ const Home = () => {
             </section>
 
             {/* Hero Section with Parallax and Background Image */}
-            <section className="hero-section relative overflow-hidden h-screen flex items-center justify-center bg-gradient-to-br from-deepBlue via-[#9c0101] to-[#e31e24]">
-                <div
+            <section className="hero-section relative overflow-hidden h-screen flex items-center justify-center bg-gradient-to-br from-[#c41c20] via-[#e31e24] to-[#e31e24]/80">
+                {/* <div
                     className="absolute inset-0 bg-cover bg-center opacity-20"
                     style={{
                         backgroundImage:
                             "url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')",
                     }}
-                />
+                /> */}
                 <div
                     className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_25%_25%,rgba(156,1,1,0.2)_2px,transparent_0)] bg-[length:50px_50px] bg-[position:0_0]"
                     style={{
@@ -348,7 +348,7 @@ const Home = () => {
                     {/* Бесконечная карусель - верхний ряд */}
                     <div className="relative mb-8">
                         {/* Градиент для плавного перехода слева */}
-                        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+                        {/* <div className="absolute left-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div> */}
 
                         {/* Градиент для плавного перехода справа */}
                         <div className="absolute right-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
