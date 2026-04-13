@@ -165,7 +165,13 @@ const MOCK_PRODUCTS = [
 const ProductPage = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
-    const { user, login, register, loading: authLoading, error: authError } = useAuth();
+    const {
+        user,
+        login,
+        register,
+        loading: authLoading,
+        error: authError,
+    } = useAuth();
     const navigate = useNavigate();
 
     const [selectedImage, setSelectedImage] = useState(0);
@@ -236,7 +242,7 @@ const ProductPage = () => {
             brandId: wooProduct.etheme_brands?.[0]?.id || null,
             categories: wooProduct.categories?.map((cat) => cat.id) || [],
             price: parseInt(wooProduct.price || 0),
-            description: wooProduct.description || "Описание отсутствует.",
+            description: wooProduct.short_description || "Описание отсутствует.",
             images: wooProduct.images?.map((img) => img.src) || [],
             specs: attributes,
             sku: wooProduct.sku || "Не указан",
@@ -250,7 +256,7 @@ const ProductPage = () => {
         // ====================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ======================
         const getGenderScore = (currentGender, pGender) => {
             if (!currentGender || !pGender) return 1;
-            if (currentGender === pGender) return 3;                    // идеальное совпадение
+            if (currentGender === pGender) return 3; // идеальное совпадение
             if (currentGender === "Унисекс" || pGender === "Унисекс") return 2; // unisex — универсал
             return 0; // мужчина ↔ женщина = 0
         };
@@ -273,16 +279,17 @@ const ProductPage = () => {
 
         // Если API не настроен — работаем с мок-данными
         if (!CONSUMER_KEY || !CONSUMER_SECRET) {
-            const scored = MOCK_PRODUCTS
-                .filter(p => p.id !== currentProduct.id)
-                .map(p => {
+            const scored = MOCK_PRODUCTS.filter(
+                (p) => p.id !== currentProduct.id,
+            )
+                .map((p) => {
                     const genderScore = getGenderScore(
                         currentProduct.specs["Пол"],
-                        p.specs["Пол"]
+                        p.specs["Пол"],
                     );
                     const materialScore = getMaterialScore(
                         currentProduct.specs["Материал"],
-                        p.specs["Материал"]
+                        p.specs["Материал"],
                     );
                     const brandBonus = p.brand === currentProduct.brand ? 2 : 0;
 
@@ -293,7 +300,7 @@ const ProductPage = () => {
                 })
                 .sort((a, b) => b.score - a.score);
 
-            const displayProducts = scored.slice(0, 6).map(p => ({
+            const displayProducts = scored.slice(0, 6).map((p) => ({
                 id: p.id,
                 name: p.name,
                 price: p.price,
@@ -301,16 +308,18 @@ const ProductPage = () => {
                 brand: p.brand,
             }));
 
-            setSimilarProducts(displayProducts.length > 0 
-                ? displayProducts 
-                : MOCK_PRODUCTS.filter(p => p.id !== currentProduct.id).slice(0, 6)
-                    .map(p => ({
-                        id: p.id,
-                        name: p.name,
-                        price: p.price,
-                        image: p.images[0],
-                        brand: p.brand,
-                    }))
+            setSimilarProducts(
+                displayProducts.length > 0
+                    ? displayProducts
+                    : MOCK_PRODUCTS.filter((p) => p.id !== currentProduct.id)
+                          .slice(0, 6)
+                          .map((p) => ({
+                              id: p.id,
+                              name: p.name,
+                              price: p.price,
+                              image: p.images[0],
+                              brand: p.brand,
+                          })),
             );
             return;
         }
@@ -334,14 +343,14 @@ const ProductPage = () => {
             const mappedAll = response.data.map(mapProduct);
 
             const scored = mappedAll
-                .map(p => {
+                .map((p) => {
                     const genderScore = getGenderScore(
                         currentProduct.specs["Пол"],
-                        p.specs["Пол"]
+                        p.specs["Пол"],
                     );
                     const materialScore = getMaterialScore(
                         currentProduct.specs["Материал"],
-                        p.specs["Материал"]
+                        p.specs["Материал"],
                     );
                     const brandBonus = p.brand === currentProduct.brand ? 2 : 0;
 
@@ -350,17 +359,21 @@ const ProductPage = () => {
                         score: genderScore + materialScore + brandBonus,
                     };
                 })
-                .filter(p => p.score > 0) // только товары с хотя бы минимальным совпадением
+                .filter((p) => p.score > 0) // только товары с хотя бы минимальным совпадением
                 .sort((a, b) => b.score - a.score);
 
             let candidates = scored.slice(0, 6);
 
             // Если мало — добираем по бренду
-            if (candidates.length < 6 && currentProduct.brand !== "Без бренда") {
+            if (
+                candidates.length < 6 &&
+                currentProduct.brand !== "Без бренда"
+            ) {
                 const byBrand = mappedAll
-                    .filter(p => 
-                        p.brand === currentProduct.brand && 
-                        !candidates.some(c => c.id === p.id)
+                    .filter(
+                        (p) =>
+                            p.brand === currentProduct.brand &&
+                            !candidates.some((c) => c.id === p.id),
                     )
                     .slice(0, 6 - candidates.length);
 
@@ -370,16 +383,18 @@ const ProductPage = () => {
             // Если всё ещё мало — добираем любые товары
             if (candidates.length < 6) {
                 const remaining = mappedAll
-                    .filter(p => !candidates.some(c => c.id === p.id))
+                    .filter((p) => !candidates.some((c) => c.id === p.id))
                     .slice(0, 6 - candidates.length);
                 candidates = [...candidates, ...remaining];
             }
 
-            const displayProducts = candidates.map(p => ({
+            const displayProducts = candidates.map((p) => ({
                 id: p.id,
                 name: p.name,
                 price: p.price,
-                image: p.images[0] || "https://via.placeholder.com/300?text=No+Image",
+                image:
+                    p.images[0] ||
+                    "https://via.placeholder.com/300?text=No+Image",
                 brand: p.brand,
             }));
 
@@ -387,24 +402,34 @@ const ProductPage = () => {
         } catch (err) {
             console.error("Ошибка загрузки похожих товаров:", err);
             // При ошибке API — падаем на улучшенную мок-логику (выше)
-            const scored = MOCK_PRODUCTS
-                .filter(p => p.id !== currentProduct.id)
-                .map(p => {
-                    const genderScore = getGenderScore(currentProduct.specs["Пол"], p.specs["Пол"]);
-                    const materialScore = getMaterialScore(currentProduct.specs["Материал"], p.specs["Материал"]);
+            const scored = MOCK_PRODUCTS.filter(
+                (p) => p.id !== currentProduct.id,
+            )
+                .map((p) => {
+                    const genderScore = getGenderScore(
+                        currentProduct.specs["Пол"],
+                        p.specs["Пол"],
+                    );
+                    const materialScore = getMaterialScore(
+                        currentProduct.specs["Материал"],
+                        p.specs["Материал"],
+                    );
                     const brandBonus = p.brand === currentProduct.brand ? 2 : 0;
-                    return { ...p, score: genderScore + materialScore + brandBonus };
+                    return {
+                        ...p,
+                        score: genderScore + materialScore + brandBonus,
+                    };
                 })
                 .sort((a, b) => b.score - a.score);
 
             setSimilarProducts(
-                scored.slice(0, 6).map(p => ({
+                scored.slice(0, 6).map((p) => ({
                     id: p.id,
                     name: p.name,
                     price: p.price,
                     image: p.images[0],
                     brand: p.brand,
-                }))
+                })),
             );
         } finally {
             setLoadingSimilar(false);
@@ -413,30 +438,34 @@ const ProductPage = () => {
 
     useEffect(() => {
         const fetchProduct = async () => {
+            // Если используем MOCK-данные
             if (!CONSUMER_KEY || !CONSUMER_SECRET) {
-                const mockProduct = MOCK_PRODUCTS.find((p) => p.id === parseInt(id));
+                const mockProduct = MOCK_PRODUCTS.find(
+                    (p) => p.id === parseInt(id),
+                );
                 if (mockProduct) {
                     setProduct(mockProduct);
-                    fetchSimilarProducts(mockProduct);
+                    setLoading(false); // Снимаем загрузку СРАЗУ
+                    fetchSimilarProducts(mockProduct); // Похожие грузятся в фоне
 
+                    // Настройка категорий...
                     const categories = mockProduct.categories || [];
-                    if (categories.includes(108)) {
-                        setCategoryPath("/sunglasses");
-                        setCategoryName("Солнцезащитные очки");
-                    } else if (categories.includes(104)) {
-                        setCategoryPath("/frames");
-                        setCategoryName("Оправы");
-                    } else {
-                        setCategoryPath("/frames");
-                        setCategoryName("Оправы");
-                    }
+                    setCategoryPath(
+                        categories.includes(108) ? "/sunglasses" : "/frames",
+                    );
+                    setCategoryName(
+                        categories.includes(108)
+                            ? "Солнцезащитные очки"
+                            : "Оправы",
+                    );
                 } else {
                     setError("Товар не найден");
+                    setLoading(false);
                 }
-                setLoading(false);
                 return;
             }
 
+            // Если используем реальный API
             try {
                 setLoading(true);
                 setError(null);
@@ -448,45 +477,36 @@ const ProductPage = () => {
                     timeout: 10000,
                 });
 
-                const wooProduct = response.data;
-                const mappedProduct = mapProduct(wooProduct);
+                const mappedProduct = mapProduct(response.data);
                 setProduct(mappedProduct);
+
+                // КЛЮЧЕВОЙ МОМЕНТ:
+                setLoading(false); // Контент основного товара теперь отобразится
+
+                // Запускаем загрузку похожих товаров отдельно
                 fetchSimilarProducts(mappedProduct);
 
                 const categories = mappedProduct.categories || [];
-                if (categories.includes(108)) {
-                    setCategoryPath("/sunglasses");
-                    setCategoryName("Солнцезащитные очки");
-                } else if (categories.includes(104)) {
-                    setCategoryPath("/frames");
-                    setCategoryName("Оправы");
-                } else {
-                    setCategoryPath("/frames");
-                    setCategoryName("Оправы");
-                }
+                setCategoryPath(
+                    categories.includes(108) ? "/sunglasses" : "/frames",
+                );
+                setCategoryName(
+                    categories.includes(108) ? "Солнцезащитные очки" : "Оправы",
+                );
             } catch (err) {
                 console.error("Ошибка загрузки товара:", err);
-                const mockProduct = MOCK_PRODUCTS.find((p) => p.id === parseInt(id));
+                // Попытка найти в моках при ошибке API
+                const mockProduct = MOCK_PRODUCTS.find(
+                    (p) => p.id === parseInt(id),
+                );
                 if (mockProduct) {
                     setProduct(mockProduct);
+                    setLoading(false);
                     fetchSimilarProducts(mockProduct);
-
-                    const categories = mockProduct.categories || [];
-                    if (categories.includes(108)) {
-                        setCategoryPath("/sunglasses");
-                        setCategoryName("Солнцезащитные очки");
-                    } else if (categories.includes(104)) {
-                        setCategoryPath("/frames");
-                        setCategoryName("Оправы");
-                    } else {
-                        setCategoryPath("/frames");
-                        setCategoryName("Оправы");
-                    }
                 } else {
                     setError(`Ошибка загрузки товара: ${err.message}`);
+                    setLoading(false);
                 }
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -784,7 +804,7 @@ const ProductPage = () => {
                 <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 px-4 overflow-y-auto py-8">
                     <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative animate-scale-in">
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e31e24] to-transparent"></div>
-                        
+
                         <button
                             onClick={() => {
                                 setShowAuthModal(false);
@@ -810,9 +830,7 @@ const ProductPage = () => {
                                 {isLogin && (
                                     <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 rounded-xl"></div>
                                 )}
-                                <span className="relative z-10">
-                                    Войти
-                                </span>
+                                <span className="relative z-10">Войти</span>
                             </button>
 
                             <button
@@ -852,7 +870,10 @@ const ProductPage = () => {
                                 </p>
                             </div>
                         ) : (
-                            <form onSubmit={handleAuthSubmit} className="space-y-6">
+                            <form
+                                onSubmit={handleAuthSubmit}
+                                className="space-y-6"
+                            >
                                 {cleanAuthError && (
                                     <div className="text-red-600 text-center font-medium bg-red-50 p-3 rounded-xl">
                                         {cleanAuthError}
@@ -922,7 +943,8 @@ const ProductPage = () => {
 
                                 {!isLogin && (
                                     <p className="text-sm text-gray-500 text-center mt-4">
-                                        Регистрируясь, вы получаете скидки и бонусы!
+                                        Регистрируясь, вы получаете скидки и
+                                        бонусы!
                                     </p>
                                 )}
                             </form>
@@ -941,7 +963,7 @@ const ProductPage = () => {
                         >
                             ✕
                         </button>
-                        
+
                         <h2 className="text-3xl font-bold text-center text-[#c41c20] mb-8">
                             Ваша карта лояльности
                         </h2>
@@ -1015,11 +1037,12 @@ const ProductPage = () => {
                             </div>
                             <div className="mt-6 text-center">
                                 <p className="text-gray-600">
-                                    Показывайте эту карту при покупке и получайте бонусы!
+                                    Показывайте эту карту при покупке и
+                                    получайте бонусы!
                                 </p>
                             </div>
                         </div>
-                        
+
                         <button
                             onClick={() => setShowLoyaltyCard(false)}
                             className="mt-6 w-full py-3 bg-gradient-to-r from-[#e31e24] to-[#c41c20] text-white font-bold rounded-xl hover:scale-[1.02] transition"

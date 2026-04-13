@@ -91,15 +91,12 @@ export const useWooProducts = (
                 try {
                     setLoading(true);
                     setError(null);
-                    console.log(
-                        `Загрузка всех товаров из WooCommerce для категории ${categoryId}... (попытка ${retryCount + 1})`,
-                    );
-                    let allData = [];
+
+                    let allDataAccumulator = []; // Локальный накопитель для кэша
                     let page = 1;
                     let hasMore = true;
-                    // Загружаем пачками по 50 товаров
+
                     while (hasMore && page <= 10) {
-                        // Максимум 500 товаров
                         const response = await axios.get(
                             `${API_BASE}/products`,
                             {
@@ -112,22 +109,38 @@ export const useWooProducts = (
                                     status: "publish",
                                     stock_status: "instock",
                                 },
-                                timeout: 30000, // 30 секунд на страницу
+                                timeout: 30000,
                             },
                         );
 
                         const pageData = response.data || [];
+
                         if (pageData.length === 0) {
                             hasMore = false;
                         } else {
-                            allData.push(...pageData);
+                            const mappedPage = pageData.map(mapProduct);
+                            allDataAccumulator.push(...mappedPage);
+
+                            // 1. Обновляем стейт сразу после получения страницы
+                            setAllProducts((prev) => {
+                                // Если это первая страница, заменяем старые данные,
+                                // если последующие — добавляем в конец
+                                return page === 1
+                                    ? mappedPage
+                                    : [...prev, ...mappedPage];
+                            });
+
+                            // 2. Снимаем индикатор загрузки СРАЗУ после первой страницы
+                            if (page === 1) {
+                                setLoading(false);
+                            }
+
                             console.log(
-                                `Страница ${page}: ${pageData.length} товаров`,
+                                `Загружена страница ${page}, товаров в стейте: ${allDataAccumulator.length}`,
                             );
                             page++;
                         }
 
-                        // Небольшая пауза между запросами
                         if (hasMore) {
                             await new Promise((resolve) =>
                                 setTimeout(resolve, 100),
@@ -135,20 +148,12 @@ export const useWooProducts = (
                         }
                     }
 
-                    const mappedProducts = allData.map(mapProduct);
-
-                    // Сохраняем в кэш для этой категории
+                    // Сохраняем финальный результат в кэш
                     globalCache[categoryId] = {
-                        products: mappedProducts,
+                        products: allDataAccumulator,
                         lastFetch: Date.now(),
-                        cacheDuration: 5 * 60 * 1000, // 5 минут кэширования
+                        cacheDuration: 5 * 60 * 1000,
                     };
-
-                    setAllProducts(mappedProducts);
-                    console.log(
-                        `Загружено всего ${mappedProducts.length} товаров для категории ${categoryId}`,
-                    );
-                    return;
                 } catch (err) {
                     retryCount++;
                     console.error(`Попытка ${retryCount} failed:`, err.message);
