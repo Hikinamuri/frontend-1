@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef  } from "react";
+import React, {
+    useState,
+    useMemo,
+    useEffect,
+    useCallback,
+    useRef,
+} from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import {
     Filter,
@@ -129,7 +135,6 @@ const Frames = () => {
     useEffect(() => {
         window.scrollTo({
             top: 0,
-           
         });
     }, [currentPage]);
 
@@ -137,6 +142,12 @@ const Frames = () => {
         if (filters.brand.length !== 1) return null;
         return brandOptions.find((opt) => opt.value === filters.brand[0]);
     }, [filters.brand, brandOptions]);
+
+    const sortedBrandOptions = useMemo(() => {
+        return [...brandOptions].sort((a, b) =>
+            a.label.localeCompare(b.label, "ru", { sensitivity: "base" }),
+        );
+    }, [brandOptions]);
 
     const handleMinPriceChange = useCallback(
         (e) => {
@@ -209,8 +220,8 @@ const Frames = () => {
                 <div className="max-w-7xl mx-auto">
                     <ol className="flex items-center space-x-2 text-sm text-gray-500">
                         <li>
-                            <Link 
-                                to="/" 
+                            <Link
+                                to="/"
                                 className="hover:text-[#c8102e] transition-colors duration-200"
                             >
                                 Главная
@@ -218,7 +229,9 @@ const Frames = () => {
                         </li>
                         <li className="flex items-center">
                             <span className="mx-2">/</span>
-                            <span className="text-gray-900 font-medium">Оправы</span>
+                            <span className="text-gray-900 font-medium">
+                                Оправы
+                            </span>
                         </li>
                     </ol>
                 </div>
@@ -397,7 +410,7 @@ const Frames = () => {
                                             </div>
                                         ) : (
                                             <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
-                                                {brandOptions.map((option) => (
+                                                {sortedBrandOptions.map((option) => (
                                                     <label
                                                         key={option.value}
                                                         className="flex items-center space-x-3 cursor-pointer group"
@@ -571,7 +584,7 @@ const Frames = () => {
                                         />
                                     </FilterSection>
 
-                                    <FilterSection
+                                    {/* <FilterSection
                                         title="Бренд"
                                         icon={
                                             <Tag
@@ -598,7 +611,7 @@ const Frames = () => {
                                                 />
                                             ))}
                                         </div>
-                                    </FilterSection>
+                                    </FilterSection> */}
                                 </div>
                             </div>
                         </div>
@@ -744,33 +757,39 @@ const ColorFilter = React.memo(({ option, checked, onChange }) => (
     </label>
 ));
 
-    const PriceSliderSection = React.memo(
-        ({ priceRange, minPrice, maxPrice, onMinChange, onMaxChange }) => {
-            const [isDragging, setIsDragging] = useState(null);
-            const sliderRef = useRef(null);
+const PriceSliderSection = React.memo(
+    ({ priceRange, minPrice, maxPrice, onMinChange, onMaxChange }) => {
+        const [isDragging, setIsDragging] = useState(null);
+        const sliderRef = useRef(null);
 
-            // Актуальные значения для document listeners (чтобы не было stale closure)
-            const latestRef = useRef({
+        // Актуальные значения для document listeners (чтобы не было stale closure)
+        const latestRef = useRef({
+            priceRange,
+            minPrice,
+            maxPrice,
+            onMinChange,
+            onMaxChange,
+        });
+
+        useEffect(() => {
+            latestRef.current = {
                 priceRange,
                 minPrice,
                 maxPrice,
                 onMinChange,
                 onMaxChange,
-            });
+            };
+        }, [priceRange, minPrice, maxPrice, onMinChange, onMaxChange]);
 
-            useEffect(() => {
-                latestRef.current = {
-                    priceRange,
-                    minPrice,
-                    maxPrice,
-                    onMinChange,
-                    onMaxChange,
-                };
-            }, [priceRange, minPrice, maxPrice, onMinChange, onMaxChange]);
-
-            const handleMouseMove = useCallback((e) => {
-                const { priceRange: currRange, minPrice: minP, maxPrice: maxP, onMinChange: updateMin, onMaxChange: updateMax } =
-                    latestRef.current;
+        const handleMouseMove = useCallback(
+            (e) => {
+                const {
+                    priceRange: currRange,
+                    minPrice: minP,
+                    maxPrice: maxP,
+                    onMinChange: updateMin,
+                    onMaxChange: updateMax,
+                } = latestRef.current;
 
                 if (!isDragging || !sliderRef.current) return;
 
@@ -786,107 +805,120 @@ const ColorFilter = React.memo(({ option, checked, onChange }) => (
                 } else if (isDragging === "max" && newPrice >= currRange.min) {
                     updateMax({ target: { value: newPrice.toString() } });
                 }
-            }, [isDragging]);
+            },
+            [isDragging],
+        );
 
-            const handleMouseUp = useCallback(() => {
-                setIsDragging(null);
-                document.removeEventListener("mousemove", handleMouseMove);
-                document.removeEventListener("mouseup", handleMouseUp);
-            }, [handleMouseMove]);
+        const handleMouseUp = useCallback(() => {
+            setIsDragging(null);
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        }, [handleMouseMove]);
 
-            const handleMouseDown = useCallback(
-                (e, type) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsDragging(type);
-                    document.addEventListener("mousemove", handleMouseMove);
-                    document.addEventListener("mouseup", handleMouseUp);
-                },
-                [handleMouseMove, handleMouseUp]
-            );
+        const handleMouseDown = useCallback(
+            (e, type) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(type);
+                document.addEventListener("mousemove", handleMouseMove);
+                document.addEventListener("mouseup", handleMouseUp);
+            },
+            [handleMouseMove, handleMouseUp],
+        );
 
-            // Клик по треку — сразу перемещает ближайшую ручку
-            const handleTrackClick = useCallback(
-                (e) => {
-                    if (!sliderRef.current || isDragging) return;
+        // Клик по треку — сразу перемещает ближайшую ручку
+        const handleTrackClick = useCallback(
+            (e) => {
+                if (!sliderRef.current || isDragging) return;
 
-                    const rect = sliderRef.current.getBoundingClientRect();
-                    let offsetX = e.clientX - rect.left;
-                    offsetX = Math.max(0, Math.min(offsetX, rect.width));
+                const rect = sliderRef.current.getBoundingClientRect();
+                let offsetX = e.clientX - rect.left;
+                offsetX = Math.max(0, Math.min(offsetX, rect.width));
 
-                    const percentage = offsetX / rect.width;
-                    const clickPrice = Math.round(
-                        (minPrice || 0) + percentage * ((maxPrice || 70000) - (minPrice || 0))
-                    );
+                const percentage = offsetX / rect.width;
+                const clickPrice = Math.round(
+                    (minPrice || 0) +
+                        percentage * ((maxPrice || 70000) - (minPrice || 0)),
+                );
 
-                    const curr = latestRef.current.priceRange;
-                    const distMin = Math.abs(clickPrice - curr.min);
-                    const distMax = Math.abs(clickPrice - curr.max);
+                const curr = latestRef.current.priceRange;
+                const distMin = Math.abs(clickPrice - curr.min);
+                const distMax = Math.abs(clickPrice - curr.max);
 
-                    if (distMin <= distMax) {
-                        latestRef.current.onMinChange({ target: { value: clickPrice.toString() } });
-                    } else {
-                        latestRef.current.onMaxChange({ target: { value: clickPrice.toString() } });
-                    }
-                },
-                [minPrice, maxPrice, isDragging]
-            );
+                if (distMin <= distMax) {
+                    latestRef.current.onMinChange({
+                        target: { value: clickPrice.toString() },
+                    });
+                } else {
+                    latestRef.current.onMaxChange({
+                        target: { value: clickPrice.toString() },
+                    });
+                }
+            },
+            [minPrice, maxPrice, isDragging],
+        );
 
-            if (minPrice === undefined || maxPrice === undefined || minPrice >= maxPrice) {
-                return null;
-            }
+        if (
+            minPrice === undefined ||
+            maxPrice === undefined ||
+            minPrice >= maxPrice
+        ) {
+            return null;
+        }
 
-            const minPercent = ((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100;
-            const maxPercent = ((priceRange.max - minPrice) / (maxPrice - minPrice)) * 100;
+        const minPercent =
+            ((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100;
+        const maxPercent =
+            ((priceRange.max - minPrice) / (maxPrice - minPrice)) * 100;
 
-            return (
-                <div>
-                    <h4 className="font-semibold text-[#c8102e] mb-3 flex items-center space-x-2">
-                        <DollarSign size={18} className="text-[#c8102e]" />
-                        <span>Цена, ₽</span>
-                    </h4>
-                    <div className="space-y-4">
-                        <div className="flex justify-between text-sm text-gray-600">
-                            <span>от {priceRange.min.toLocaleString("ru-RU")}</span>
-                            <span>до {priceRange.max.toLocaleString("ru-RU")}</span>
-                        </div>
+        return (
+            <div>
+                <h4 className="font-semibold text-[#c8102e] mb-3 flex items-center space-x-2">
+                    <DollarSign size={18} className="text-[#c8102e]" />
+                    <span>Цена, ₽</span>
+                </h4>
+                <div className="space-y-4">
+                    <div className="flex justify-between text-sm text-gray-600">
+                        <span>от {priceRange.min.toLocaleString("ru-RU")}</span>
+                        <span>до {priceRange.max.toLocaleString("ru-RU")}</span>
+                    </div>
 
+                    <div
+                        ref={sliderRef}
+                        className="relative h-10 bg-transparent cursor-pointer select-none"
+                        onClick={handleTrackClick}
+                    >
+                        {/* Фон */}
+                        <div className="absolute top-1/2 left-0 right-0 h-1.5 bg-gray-200 rounded-full -translate-y-1/2" />
+
+                        {/* Активный диапазон */}
                         <div
-                            ref={sliderRef}
-                            className="relative h-10 bg-transparent cursor-pointer select-none"
-                            onClick={handleTrackClick}
-                        >
-                            {/* Фон */}
-                            <div className="absolute top-1/2 left-0 right-0 h-1.5 bg-gray-200 rounded-full -translate-y-1/2" />
+                            className="absolute top-1/2 h-1.5 bg-gradient-to-r from-[#c8102e] to-[#a50d24] rounded-full -translate-y-1/2"
+                            style={{
+                                left: `${Math.max(0, minPercent)}%`,
+                                width: `${Math.max(0, maxPercent - minPercent)}%`,
+                            }}
+                        />
 
-                            {/* Активный диапазон */}
-                            <div
-                                className="absolute top-1/2 h-1.5 bg-gradient-to-r from-[#c8102e] to-[#a50d24] rounded-full -translate-y-1/2"
-                                style={{
-                                    left: `${Math.max(0, minPercent)}%`,
-                                    width: `${Math.max(0, maxPercent - minPercent)}%`,
-                                }}
-                            />
+                        {/* Ручка MIN */}
+                        <div
+                            className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing z-20 hover:scale-110 transition-transform"
+                            style={{ left: `${minPercent}%` }}
+                            onMouseDown={(e) => handleMouseDown(e, "min")}
+                        />
 
-                            {/* Ручка MIN */}
-                            <div
-                                className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing z-20 hover:scale-110 transition-transform"
-                                style={{ left: `${minPercent}%` }}
-                                onMouseDown={(e) => handleMouseDown(e, "min")}
-                            />
-
-                            {/* Ручка MAX */}
-                            <div
-                                className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing z-20 hover:scale-110 transition-transform"
-                                style={{ left: `${maxPercent}%` }}
-                                onMouseDown={(e) => handleMouseDown(e, "max")}
-                            />
-                        </div>
+                        {/* Ручка MAX */}
+                        <div
+                            className="absolute top-1/2 w-5 h-5 bg-white border-2 border-[#c8102e] rounded-full shadow-lg -translate-y-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing z-20 hover:scale-110 transition-transform"
+                            style={{ left: `${maxPercent}%` }}
+                            onMouseDown={(e) => handleMouseDown(e, "max")}
+                        />
                     </div>
                 </div>
-            );
-        }
-    );
+            </div>
+        );
+    },
+);
 
 const ProductCard = React.memo(({ product, viewMode }) => (
     <Link

@@ -109,6 +109,12 @@ const Sunglasses = () => {
         setCurrentPage(1);
     }, [minPrice, maxPrice]);
 
+    const sortedBrandOptions = useMemo(() => {
+        return [...brandOptions].sort((a, b) =>
+            a.label.localeCompare(b.label, "ru", { sensitivity: "base" }),
+        );
+    }, [brandOptions]);
+
     // Оптимизированные обработчики слайдера
     const handleMinPriceChange = useCallback(
         (e) => {
@@ -449,7 +455,7 @@ const Sunglasses = () => {
                                         icon={<Tag size={18} />}
                                     >
                                         <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
-                                            {brandOptions.map((option) => (
+                                            {sortedBrandOptions.map((option) => (
                                                 <CheckboxFilter
                                                     key={option.value}
                                                     value={option.value}

@@ -348,7 +348,7 @@ const Contacts = () => {
                                     </p>
                                 </div>
 
-                                <div>
+                                {/* <div>
                                     <h3 className="font-semibold text-[#c41c20] mb-2">
                                         Юридический адрес
                                     </h3>
@@ -356,7 +356,7 @@ const Contacts = () => {
                                         420029, РТ г. Казань ул. Сибирский тракт
                                         24/7
                                     </p>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
